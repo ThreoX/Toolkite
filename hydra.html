@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>CyberFriend | Hydra Command Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', sans-serif; background: #ffffff; color: #1e293b; line-height: 1.5; overflow-x: hidden; }
+  .video-background { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; overflow: hidden; }
+  .video-background video { min-width: 100%; min-height: 100%; width: auto; height: auto; position: absolute; top: 50%; left: 50%; opacity: 0.4; transform: translate(-50%, -50%); object-fit: cover; }
+  .video-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: transparent; z-index: -1; }
+  :root { --white: #ffffff; --offwhite: #f9fafb; --gray-50: #f8fafc; --gray-100: #f1f5f9; --gray-200: #e2e8f0; --gray-300: #cbd5e1; --gray-600: #475569; --gray-700: #334155; --gray-800: #1e293b; --gray-900: #0f172a; --green: #10b981; --green-dark: #059669; --blue: #3b82f6; --blue-dark: #2563eb; --grad: linear-gradient(135deg, #10b981, #3b82f6); --grad-hover: linear-gradient(135deg, #059669, #2563eb); --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05); --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03); --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025); --border-light: 1px solid rgba(226, 232, 240, 0.5); }
+  h1, h2, h3, h4, h5, h6 { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; letter-spacing: -0.02em; }
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: rgba(241, 245, 249, 0.5); }
+  ::-webkit-scrollbar-thumb { background: var(--green); border-radius: 10px; }
+  
+  .navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; padding: 0 5%; transition: all 0.3s ease; background: transparent; }
+  .navbar.scrolled { background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(12px); border-bottom: var(--border-light); box-shadow: var(--shadow-sm); }
+  .nav-container { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 70px; }
+  .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+  .nav-links { display: flex; list-style: none; gap: 2rem; align-items: center; }
+  .nav-links a { text-decoration: none; font-size: 0.9rem; font-weight: 500; color: var(--gray-700); transition: color 0.2s; }
+  .nav-links a:hover, .nav-links a.active { color: var(--green); }
+  .status-badge { background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.25); padding: 0.3rem 1rem; border-radius: 40px; font-size: 0.75rem; font-weight: 600; color: var(--green-dark); display: flex; align-items: center; gap: 6px; }
+  .status-dot { width: 8px; height: 8px; background: var(--green); border-radius: 50%; animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(1.2); } }
+  .menu-btn { display: none; background: none; border: none; cursor: pointer; padding: 8px; }
+  .menu-btn span { display: block; width: 24px; height: 2px; background: var(--gray-800); margin: 5px 0; border-radius: 2px; }
+  
+  .app-container { display: flex; padding-top: 70px; min-height: 100vh; }
+  
+  /* SIDEBAR - IMPROVED USER FRIENDLY */
+  .sidebar { width: 280px; background: transparent; border-right: var(--border-light); height: calc(100vh - 70px); position: sticky; top: 70px; overflow-y: auto; flex-shrink: 0; scroll-behavior: smooth; }
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .logo-area { padding: 2rem 1.5rem 1.5rem; border-bottom: var(--border-light); text-align: center; }
+  .logo-icon-large { width: 80px; height: 80px; margin: 0 auto 1rem; }
+  .logo-icon-large img { width: 100%; height: 100%; object-fit: contain; }
+  .logo-title-img { height: 36px; width: auto; object-fit: contain; margin-bottom: 0.5rem; }
+  .logo-badge { font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--green); background: rgba(16, 185, 129, 0.1); padding: 0.2rem 0.8rem; border-radius: 20px; display: inline-block; }
+  
+  /* Sidebar Navigation - Easy click without cursor up/down issues */
+  .sidebar-nav { padding: 1rem 0; }
+  .nav-section { margin-bottom: 1.5rem; }
+  .nav-section-title { padding: 0.5rem 1.5rem; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--gray-600); display: flex; align-items: center; gap: 6px; }
+  .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 1.5rem; margin: 0 8px; border-radius: 12px; cursor: pointer; transition: all 0.2s ease; color: var(--gray-700); }
+  .nav-item i { width: 22px; color: var(--gray-500); transition: all 0.2s; }
+  .nav-item span { font-size: 0.85rem; font-weight: 500; }
+  .nav-item:hover { background: rgba(16, 185, 129, 0.08); color: var(--green); }
+  .nav-item:hover i { color: var(--green); }
+  .nav-item.active { background: var(--grad); color: white; }
+  .nav-item.active i { color: white; }
+  
+  .quick-actions { padding: 1rem 1.5rem; border-top: var(--border-light); margin-top: 0.5rem; }
+  .quick-btn { width: 100%; padding: 10px; border-radius: 40px; background: rgba(16, 185, 129, 0.1); border: none; color: var(--green-dark); font-weight: 600; font-size: 12px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 8px; }
+  .quick-btn:hover { background: var(--green); color: white; }
+  .sidebar-footer { padding: 1rem 1.5rem; border-top: var(--border-light); color: var(--gray-600); font-size: 0.7rem; text-align: center; }
+  
+  .main-content { flex: 1; overflow-y: auto; height: calc(100vh - 70px); }
+  .scroll-content { padding: 2rem; }
+  
+  /* Builder Styles */
+  .builder-container { max-width: 1300px; margin: 0 auto; }
+  .hero-card { background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(8px); border-radius: 24px; padding: 24px; margin-bottom: 24px; border: var(--border-light); }
+  .warning-card { background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(239, 68, 68, 0.05)); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 16px; padding: 14px 20px; margin-bottom: 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .warning-card i { color: #f59e0b; font-size: 20px; }
+  .warning-card span { font-size: 13px; color: #b45309; }
+  
+  .two-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  @media (max-width: 900px) { .two-columns { grid-template-columns: 1fr; } }
+  
+  .input-group { margin-bottom: 20px; }
+  .input-group label { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--gray-700); margin-bottom: 8px; }
+  .input-group label i { color: var(--green); width: 18px; }
+  .input-group input, .input-group select { width: 100%; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--gray-200); background: white; font-size: 14px; transition: all 0.2s; font-family: 'Inter', monospace; }
+  .input-group input:focus, .input-group select:focus { outline: none; border-color: var(--green); box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1); }
+  .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .hint-text { font-size: 11px; color: var(--gray-500); margin-top: 6px; display: flex; align-items: center; gap: 4px; }
+  
+  .cmd-preview-area { background: var(--gray-50); border-radius: 16px; padding: 20px; margin-bottom: 20px; border: 1px solid var(--gray-200); }
+  .cmd-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px; }
+  .cmd-header h4 { font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+  .cmd-code { background: #0f172a; color: #10b981; padding: 16px; border-radius: 12px; font-family: 'Courier New', monospace; font-size: 13px; white-space: pre-wrap; word-break: break-all; line-height: 1.5; }
+  
+  .action-buttons { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
+  .btn { padding: 10px 20px; border-radius: 40px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; font-family: 'Inter', sans-serif; display: inline-flex; align-items: center; gap: 8px; }
+  .btn-primary { background: var(--grad); color: white; }
+  .btn-primary:hover { transform: scale(0.97); background: var(--grad-hover); }
+  .btn-secondary { background: white; border: 1px solid var(--gray-200); color: var(--gray-700); }
+  .btn-secondary:hover { border-color: var(--green); color: var(--green); background: rgba(16, 185, 129, 0.05); }
+  
+  .examples-section { margin-top: 24px; }
+  .examples-grid { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+  .example-item { background: rgba(0, 0, 0, 0.02); border-radius: 10px; padding: 10px 14px; font-family: 'Courier New', monospace; font-size: 11px; color: var(--gray-600); border-left: 3px solid var(--green); cursor: pointer; transition: all 0.2s; }
+  .example-item:hover { background: rgba(16, 185, 129, 0.05); transform: translateX(4px); }
+  
+  .quick-stats { display: flex; gap: 16px; margin-top: 16px; flex-wrap: wrap; }
+  .stat-badge { background: rgba(16, 185, 129, 0.1); padding: 6px 12px; border-radius: 40px; font-size: 11px; font-weight: 500; color: var(--green-dark); display: flex; align-items: center; gap: 6px; }
+  
+  .toast { position: fixed; bottom: 24px; right: 24px; background: var(--green-dark); color: white; padding: 12px 20px; border-radius: 48px; font-size: 13px; font-weight: 500; z-index: 9999; animation: slideIn 0.3s ease; }
+  @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+  
+  .footer-note { margin-top: 24px; padding-top: 16px; border-top: var(--border-light); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; color: var(--gray-600); font-size: 0.75rem; }
+  
+  @media (max-width: 900px) { .sidebar { display: none; } .menu-btn { display: block; } .nav-links { display: none; position: fixed; top: 70px; left: 0; right: 0; background: white; flex-direction: column; padding: 2rem; gap: 1.5rem; box-shadow: var(--shadow-lg); z-index: 999; } .nav-links.open { display: flex; } .input-row { grid-template-columns: 1fr; gap: 12px; } }
+</style>
+</head>
+<body>
+
+<div class="video-background"><video autoplay muted loop playsinline id="bgVideo"><source src="background.mp4" type="video/mp4"></video></div>
+<div class="video-overlay"></div>
+
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <a href="#" class="logo"></a>
+    <button class="menu-btn" id="menuBtn"><span></span><span></span><span></span></button>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#">Tools</a></li>
+      <li><a href="https://web-scanner-codestark.onrender.com/">Scanner</a></li>
+      <li><a href="#" class="active">Hydra</a></li>
+      <li><a href="#">Reports</a></li>
+      <li><span class="status-badge"><span class="status-dot"></span> Command Builder</span></li>
+    </ul>
+  </div>
+</nav>
+
+<div class="app-container">
+  <!-- SIDEBAR - IMPROVED: Large click areas, no cursor issues -->
+  <aside class="sidebar">
+    <div class="logo-area">
+      <div class="logo-icon-large"><img src="solo_logo.jpeg" alt="CyberFriend" onerror="this.style.display='none';"></div>
+      <img src="company_text.jpeg" alt="CyberFriend" class="logo-title-img" onerror="this.style.display='none';">
+      <div class="logo-badge">HYDRA BUILDER</div>
+    </div>
+    
+    <div class="sidebar-nav">
+      <div class="nav-section">
+        <div class="nav-section-title"><i class="fas fa-cube"></i> TOOLS</div>
+        <div class="nav-item" data-scroll="config">
+          <i class="fas fa-sliders-h"></i>
+          <span>Attack Configuration</span>
+        </div>
+        <div class="nav-item" data-scroll="preview">
+          <i class="fas fa-terminal"></i>
+          <span>Command Preview</span>
+        </div>
+        <div class="nav-item" data-scroll="examples">
+          <i class="fas fa-star"></i>
+          <span>Templates</span>
+        </div>
+      </div>
+      
+      <div class="nav-section">
+        <div class="nav-section-title"><i class="fas fa-rocket"></i> QUICK ACTIONS</div>
+        <div class="quick-actions">
+          <button class="quick-btn" id="quickCopy"><i class="fas fa-copy"></i> Copy Command</button>
+          <button class="quick-btn" id="quickReset"><i class="fas fa-undo-alt"></i> Reset Form</button>
+        </div>
+      </div>
+      
+      <div class="nav-section">
+        <div class="nav-section-title"><i class="fas fa-info-circle"></i> INFO</div>
+        <div style="padding: 0 1.5rem 0.5rem;">
+          <p style="font-size: 11px; color: var(--gray-600); line-height: 1.5;"><i class="fas fa-bolt" style="color: var(--green);"></i> THC-Hydra is a parallelized login cracker. Use responsibly.</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="sidebar-footer">
+      <i class="fas fa-shield-alt"></i> UI only · no execution
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="scroll-content">
+      <div class="builder-container">
+        <!-- Header -->
+        <div class="hero-card" style="text-align: center;" id="config">
+          <div style="display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap;">
+            <div style="width: 60px; height: 60px; background: var(--grad); border-radius: 20px; display: flex; align-items: center; justify-content: center;"><i class="fas fa-bolt" style="font-size: 30px; color: white;"></i></div>
+            <div><h2 style="margin:0">Hydra Command Builder</h2><p style="color: var(--gray-600); margin-top: 4px;">Generate custom THC-Hydra commands for password auditing</p></div>
+          </div>
+        </div>
+
+        <div class="warning-card"><i class="fas fa-exclamation-triangle"></i><span>FOR AUTHORIZED TESTING ONLY — Use these commands only on systems you own or have explicit permission to test.</span></div>
+
+        <div class="two-columns">
+          <!-- Left: Input Form -->
+          <div class="hero-card">
+            <h4 style="margin-bottom: 20px; display: flex; align-items: center; gap: 8px;"><i class="fas fa-sliders-h" style="color: var(--green);"></i> Configure Attack</h4>
+            
+            <div class="input-group">
+              <label><i class="fas fa-cogs"></i> Service / Protocol</label>
+              <select id="h-service">
+                <option value="ssh">🔐 SSH</option>
+                <option value="ftp">📁 FTP</option>
+                <option value="smtp">✉️ SMTP</option>
+                <option value="http-get">🌐 HTTP-GET</option>
+                <option value="http-post-form">📝 HTTP-POST-Form</option>
+                <option value="rdp">🖥️ RDP</option>
+                <option value="mysql">🗄️ MySQL</option>
+                <option value="telnet">📟 Telnet</option>
+                <option value="pop3">📧 POP3</option>
+              </select>
+            </div>
+
+            <div class="input-group">
+              <label><i class="fas fa-crosshairs"></i> Target</label>
+              <input id="h-target" placeholder="IP address or hostname (e.g., 10.10.10.10 or example.com)">
+              <div class="hint-text"><i class="fas fa-info-circle"></i> For HTTP services, include the path if needed</div>
+            </div>
+
+            <div class="input-row">
+              <div class="input-group">
+                <label><i class="fas fa-user"></i> Username</label>
+                <input id="h-user" placeholder="Single user (e.g., admin)">
+              </div>
+              <div class="input-group">
+                <label><i class="fas fa-file-alt"></i> Userlist File</label>
+                <input id="h-userlist" placeholder="/path/to/users.txt">
+              </div>
+            </div>
+
+            <div class="input-row">
+              <div class="input-group">
+                <label><i class="fas fa-key"></i> Password</label>
+                <input id="h-pass" placeholder="Single password">
+              </div>
+              <div class="input-group">
+                <label><i class="fas fa-file-alt"></i> Passlist File</label>
+                <input id="h-passlist" placeholder="/path/to/passwords.txt">
+              </div>
+            </div>
+
+            <div class="input-row">
+              <div class="input-group">
+                <label><i class="fas fa-plug"></i> Port (optional)</label>
+                <input id="h-port" placeholder="e.g., 22">
+              </div>
+              <div class="input-group">
+                <label><i class="fas fa-tachometer-alt"></i> Threads (-t)</label>
+                <input id="h-threads" placeholder="e.g., 4 or 16">
+              </div>
+            </div>
+
+            <div class="input-group" id="httpFormGroup" style="display: none;">
+              <label><i class="fas fa-code"></i> HTTP POST Form String</label>
+              <input id="h-httpform" placeholder="/login.php:username=^USER^&password=^PASS^:Login failed">
+              <div class="hint-text"><i class="fas fa-lightbulb"></i> Format: path:params:fail_string. Use ^USER^ and ^PASS^ as placeholders.</div>
+            </div>
+
+            <div class="input-group">
+              <label><i class="fas fa-plus-circle"></i> Extra Flags</label>
+              <input id="h-extra" placeholder="-V -f -o results.txt">
+              <div class="hint-text"><i class="fas fa-info-circle"></i> Common: -V (verbose), -f (exit on first match), -o (output file)</div>
+            </div>
+          </div>
+
+          <!-- Right: Command Preview & Actions -->
+          <div class="hero-card" id="preview">
+            <div class="cmd-preview-area">
+              <div class="cmd-header">
+                <h4><i class="fas fa-terminal" style="color: var(--green);"></i> Generated Command</h4>
+                <div class="quick-stats">
+                  <div class="stat-badge"><i class="fas fa-copy"></i> <span id="cmdLength">0</span> chars</div>
+                </div>
+              </div>
+              <div id="cmdPreview" class="cmd-code"># Enter target and credentials to generate command</div>
+            </div>
+
+            <div class="action-buttons">
+              <button id="copyBtn" class="btn btn-primary"><i class="fas fa-copy"></i> Copy Command</button>
+              <button id="downloadBtn" class="btn btn-secondary"><i class="fas fa-download"></i> Download .txt</button>
+              <button id="resetBtn" class="btn btn-secondary"><i class="fas fa-undo-alt"></i> Reset All</button>
+            </div>
+
+            <div class="examples-section" id="examples">
+              <div class="hint-text"><i class="fas fa-star" style="color: var(--green);"></i> Quick Templates — Click to load</div>
+              <div class="examples-grid">
+                <div class="example-item" data-template='{"service":"ssh","target":"10.10.10.10","userlist":"/usr/share/wordlists/users.txt","passlist":"/usr/share/wordlists/passwords.txt","port":"22","threads":"4"}'>🔐 SSH brute-force with wordlists</div>
+                <div class="example-item" data-template='{"service":"ftp","target":"example.com","user":"admin","passlist":"/usr/share/wordlists/rockyou.txt","port":"21","threads":"8","extra":"-V"}'>📁 FTP attack with single user + wordlist</div>
+                <div class="example-item" data-template='{"service":"http-post-form","target":"example.com","userlist":"/usr/share/wordlists/users.txt","passlist":"/usr/share/wordlists/passwords.txt","httpform":"/login.php:username=^USER^&password=^PASS^:Invalid login","threads":"6"}'>📝 HTTP Login form brute-force</div>
+                <div class="example-item" data-template='{"service":"mysql","target":"192.168.1.100","user":"root","passlist":"/usr/share/wordlists/passwords.txt","threads":"4"}'>🗄️ MySQL root password attack</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="footer-note">
+          <span><i class="fas fa-shield-alt"></i> CyberFriend — Hydra Command Builder (UI-only, commands are not executed)</span>
+          <span><i class="fas fa-clock"></i> <span id="liveTime"></span></span>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+  // DOM Elements
+  const hService = document.getElementById('h-service');
+  const hTarget = document.getElementById('h-target');
+  const hUser = document.getElementById('h-user');
+  const hUserlist = document.getElementById('h-userlist');
+  const hPass = document.getElementById('h-pass');
+  const hPasslist = document.getElementById('h-passlist');
+  const hPort = document.getElementById('h-port');
+  const hThreads = document.getElementById('h-threads');
+  const hExtra = document.getElementById('h-extra');
+  const hHttpform = document.getElementById('h-httpform');
+  const httpFormGroup = document.getElementById('httpFormGroup');
+  const cmdPreview = document.getElementById('cmdPreview');
+  const copyBtn = document.getElementById('copyBtn');
+  const downloadBtn = document.getElementById('downloadBtn');
+  const resetBtn = document.getElementById('resetBtn');
+  const quickCopy = document.getElementById('quickCopy');
+  const quickReset = document.getElementById('quickReset');
+  const cmdLengthSpan = document.getElementById('cmdLength');
+
+  function showToast(msg) {
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.innerHTML = `<i class="fas fa-check-circle"></i> ${msg}`;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 2000);
+  }
+
+  function buildCommand() {
+    const service = hService.value;
+    const target = hTarget.value.trim();
+    const user = hUser.value.trim();
+    const userlist = hUserlist.value.trim();
+    const pass = hPass.value.trim();
+    const passlist = hPasslist.value.trim();
+    const port = hPort.value.trim();
+    const threads = hThreads.value.trim();
+    const extra = hExtra.value.trim();
+    const httpForm = hHttpform ? hHttpform.value.trim() : '';
+
+    if (!target) return '# Enter a target host to generate command';
+
+    let userFlag = '';
+    if (userlist) userFlag = `-L ${userlist}`;
+    else if (user) userFlag = `-l ${user}`;
+
+    let passFlag = '';
+    if (passlist) passFlag = `-P ${passlist}`;
+    else if (pass) passFlag = `-p ${pass}`;
+
+    let svcTarget = '';
+    if (service === 'http-get') {
+      svcTarget = target;
+    } else if (service === 'http-post-form') {
+      if (!httpForm) return '# For HTTP POST form, enter the form string below';
+      svcTarget = `"${target}:${httpForm}"`;
+    } else {
+      svcTarget = `${service}://${target}`;
+    }
+
+    let cmdParts = ['hydra'];
+    if (userFlag) cmdParts.push(userFlag);
+    if (passFlag) cmdParts.push(passFlag);
+    if (threads) cmdParts.push(`-t ${threads}`);
+    if (extra) cmdParts.push(extra);
+    if (port) cmdParts.push(`-s ${port}`);
+    cmdParts.push(svcTarget);
+
+    return cmdParts.join(' ');
+  }
+
+  function updatePreview() {
+    const cmd = buildCommand();
+    cmdPreview.textContent = cmd;
+    cmdLengthSpan.textContent = cmd.length;
+  }
+
+  function toggleHttpForm() {
+    httpFormGroup.style.display = hService.value === 'http-post-form' ? 'block' : 'none';
+    updatePreview();
+  }
+
+  // Event listeners
+  const inputs = [hService, hTarget, hUser, hUserlist, hPass, hPasslist, hPort, hThreads, hExtra];
+  inputs.forEach(el => el.addEventListener('input', updatePreview));
+  if (hHttpform) hHttpform.addEventListener('input', updatePreview);
+  hService.addEventListener('change', toggleHttpForm);
+
+  // Copy function
+  async function copyCommand() {
+    const cmd = cmdPreview.textContent;
+    if (cmd.startsWith('#')) { showToast('⚠️ Please configure target first'); return; }
+    try {
+      await navigator.clipboard.writeText(cmd);
+      showToast('✅ Command copied to clipboard!');
+    } catch(e) { showToast('❌ Copy failed'); }
+  }
+
+  copyBtn.addEventListener('click', copyCommand);
+  quickCopy.addEventListener('click', copyCommand);
+
+  // Download
+  downloadBtn.addEventListener('click', () => {
+    const cmd = cmdPreview.textContent;
+    if (cmd.startsWith('#')) { showToast('⚠️ No valid command to download'); return; }
+    const blob = new Blob([cmd], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'hydra-command.txt';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    showToast('📁 Command downloaded');
+  });
+
+  // Reset
+  function resetForm() {
+    hTarget.value = '';
+    hUser.value = '';
+    hUserlist.value = '';
+    hPass.value = '';
+    hPasslist.value = '';
+    hPort.value = '';
+    hThreads.value = '';
+    hExtra.value = '';
+    if (hHttpform) hHttpform.value = '';
+    hService.value = 'ssh';
+    toggleHttpForm();
+    updatePreview();
+    showToast('🔄 Form reset');
+  }
+
+  resetBtn.addEventListener('click', resetForm);
+  quickReset.addEventListener('click', resetForm);
+
+  // Template loader
+  document.querySelectorAll('.example-item').forEach(el => {
+    el.addEventListener('click', () => {
+      const template = JSON.parse(el.getAttribute('data-template'));
+      hService.value = template.service || 'ssh';
+      hTarget.value = template.target || '';
+      hUser.value = template.user || '';
+      hUserlist.value = template.userlist || '';
+      hPass.value = template.pass || '';
+      hPasslist.value = template.passlist || '';
+      hPort.value = template.port || '';
+      hThreads.value = template.threads || '';
+      hExtra.value = template.extra || '';
+      if (template.httpform && hHttpform) hHttpform.value = template.httpform;
+      toggleHttpForm();
+      updatePreview();
+      showToast('📋 Template loaded');
+    });
+  });
+
+  // Sidebar smooth scroll navigation - large click targets, no cursor issues
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const targetId = item.getAttribute('data-scroll');
+      if (targetId) {
+        const targetElement = document.getElementById(targetId);
+        if (targetElement) {
+          targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          // Update active state
+          document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+          item.classList.add('active');
+          setTimeout(() => item.classList.remove('active'), 500);
+        }
+      }
+    });
+  });
+
+  // Keyboard shortcut (Ctrl/Cmd + Shift + C)
+  window.addEventListener('keydown', async (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'C') {
+      e.preventDefault();
+      const cmd = cmdPreview.textContent;
+      if (!cmd.startsWith('#')) {
+        await navigator.clipboard.writeText(cmd);
+        showToast('✅ Command copied (Ctrl+Shift+C)');
+      }
+    }
+  });
+
+  // Navbar scroll
+  window.addEventListener('scroll', () => document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 20));
+  
+  // Mobile menu
+  const menuBtn = document.getElementById('menuBtn');
+  const navLinksEl = document.getElementById('navLinks');
+  menuBtn.addEventListener('click', () => navLinksEl.classList.toggle('open'));
+  document.querySelectorAll('.nav-links a').forEach(link => link.addEventListener('click', () => navLinksEl.classList.remove('open')));
+
+  // Live time
+  function updateLiveTime() {
+    const now = new Date();
+    const el = document.getElementById('liveTime');
+    if (el) el.textContent = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+  }
+  updateLiveTime();
+  setInterval(updateLiveTime, 1000);
+
+  // Video autoplay
+  const video = document.getElementById('bgVideo');
+  if (video) video.play().catch(() => document.body.addEventListener('click', () => video.play(), { once: true }));
+
+  // Initialize
+  toggleHttpForm();
+  updatePreview();
+</script>
+</body>
+</html>

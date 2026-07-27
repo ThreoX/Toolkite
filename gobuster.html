@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>CyberFriend | Gobuster Command Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', sans-serif; background: #ffffff; color: #1e293b; line-height: 1.5; overflow-x: hidden; font-size: 14px; }
+  .video-background { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; overflow: hidden; }
+  .video-background video { min-width: 100%; min-height: 100%; width: auto; height: auto; position: absolute; top: 50%; left: 50%; opacity: 0.35; transform: translate(-50%, -50%); object-fit: cover; }
+  .video-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: transparent; z-index: -1; }
+  :root { --white: #ffffff; --offwhite: #f9fafb; --gray-50: #f8fafc; --gray-100: #f1f5f9; --gray-200: #e2e8f0; --gray-300: #cbd5e1; --gray-600: #475569; --gray-700: #334155; --gray-800: #1e293b; --gray-900: #0f172a; --green: #10b981; --green-dark: #059669; --blue: #3b82f6; --blue-dark: #2563eb; --grad: linear-gradient(135deg, #10b981, #3b82f6); --grad-hover: linear-gradient(135deg, #059669, #2563eb); --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05); --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03); --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025); --border-light: 1px solid rgba(226, 232, 240, 0.5); }
+  h1, h2, h3, h4, h5, h6 { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; letter-spacing: -0.02em; }
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: rgba(241, 245, 249, 0.5); }
+  ::-webkit-scrollbar-thumb { background: var(--green); border-radius: 10px; }
+  
+  .navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; padding: 0 5%; transition: all 0.3s ease; background: transparent; }
+  .navbar.scrolled { background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(12px); border-bottom: var(--border-light); box-shadow: var(--shadow-sm); }
+  .nav-container { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 60px; }
+  .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+  .nav-links { display: flex; list-style: none; gap: 1.8rem; align-items: center; }
+  .nav-links a { text-decoration: none; font-size: 0.85rem; font-weight: 500; color: var(--gray-700); transition: color 0.2s; }
+  .nav-links a:hover, .nav-links a.active { color: var(--green); }
+  .status-badge { background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.25); padding: 0.2rem 0.9rem; border-radius: 40px; font-size: 0.7rem; font-weight: 600; color: var(--green-dark); display: flex; align-items: center; gap: 6px; }
+  .status-dot { width: 7px; height: 7px; background: var(--green); border-radius: 50%; animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(1.2); } }
+  .menu-btn { display: none; background: none; border: none; cursor: pointer; padding: 8px; }
+  .menu-btn span { display: block; width: 22px; height: 2px; background: var(--gray-800); margin: 5px 0; border-radius: 2px; }
+  
+  .app-container { display: flex; padding-top: 60px; min-height: 100vh; }
+  
+  /* Sidebar */
+  .sidebar { width: 240px; background: transparent; backdrop-filter: blur(1px); border-right: var(--border-light); height: calc(100vh - 60px); position: sticky; top: 60px; overflow-y: auto; flex-shrink: 0; }
+  .logo-area { padding: 1.2rem 1rem 1rem; border-bottom: var(--border-light); text-align: center; }
+  .logo-icon-large { width: 50px; height: 50px; margin: 0 auto 0.6rem; }
+  .logo-icon-large img { width: 100%; height: 100%; object-fit: contain; }
+  .logo-title-img { height: 24px; width: auto; object-fit: contain; margin-bottom: 0.3rem; }
+  .logo-badge { font-size: 0.55rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--green); background: rgba(16, 185, 129, 0.1); padding: 0.12rem 0.6rem; border-radius: 20px; display: inline-block; }
+  .sidebar-nav { padding: 0.8rem 0; }
+  .nav-section-title { padding: 0.4rem 1rem; font-size: 0.6rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--gray-600); display: flex; align-items: center; gap: 6px; }
+  .sidebar-footer { padding: 0.8rem 1rem; border-top: var(--border-light); color: var(--gray-600); font-size: 0.6rem; text-align: center; }
+  
+  .main-content { flex: 1; overflow-y: auto; height: calc(100vh - 60px); }
+  .scroll-content { padding: 1.2rem; }
+  
+  /* Gobuster Styles */
+  .gobuster-container { max-width: 1100px; margin: 0 auto; }
+  .hero-card { background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(8px); border-radius: 16px; padding: 1rem; margin-bottom: 1rem; border: var(--border-light); text-align: center; }
+  .warning-card { background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(239, 68, 68, 0.05)); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 10px; padding: 0.6rem 1rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 10px; }
+  .warning-card i { color: #f59e0b; font-size: 14px; }
+  .warning-card span { font-size: 11px; color: #b45309; }
+  
+  .two-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media (max-width: 900px) { .two-columns { grid-template-columns: 1fr; } .sidebar { display: none; } .menu-btn { display: block; } .nav-links { display: none; position: fixed; top: 60px; left: 0; right: 0; background: white; flex-direction: column; padding: 1rem; gap: 0.8rem; box-shadow: var(--shadow-lg); z-index: 999; } .nav-links.open { display: flex; } }
+  
+  .panel { background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(8px); border-radius: 16px; padding: 1rem; border: var(--border-light); }
+  .field { margin-bottom: 12px; }
+  .field label { display: block; font-size: 10px; font-weight: 600; color: var(--gray-600); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.3px; }
+  .field input, .field select { width: 100%; padding: 7px 10px; border-radius: 8px; border: 1px solid var(--gray-200); background: white; font-family: 'Inter', monospace; font-size: 12px; transition: all 0.2s; }
+  .field input:focus, .field select:focus { outline: none; border-color: var(--green); box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1); }
+  
+  /* Extension Grid */
+  .ext-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; margin-bottom: 8px; }
+  .ext-item { display: flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 20px; background: var(--gray-50); border: 1px solid var(--gray-200); cursor: pointer; transition: all 0.2s; font-size: 11px; }
+  .ext-item:hover { border-color: var(--green); background: rgba(16, 185, 129, 0.05); }
+  .ext-item input { margin: 0; width: 14px; height: 14px; cursor: pointer; accent-color: var(--green); }
+  .ext-item label { margin: 0; cursor: pointer; text-transform: none; font-size: 11px; font-weight: normal; color: var(--gray-700); }
+  
+  .custom-row { display: flex; gap: 8px; margin-top: 4px; }
+  .custom-row input { flex: 1; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--gray-200); background: white; font-size: 11px; }
+  .custom-row button { width: auto; padding: 6px 12px; }
+  
+  .cmd-preview { background: var(--gray-50); border-radius: 10px; padding: 10px 12px; font-family: 'Courier New', monospace; font-size: 11px; color: var(--gray-800); white-space: pre-wrap; word-break: break-all; border: 1px solid var(--gray-200); min-height: 80px; max-height: 120px; overflow-y: auto; }
+  
+  .actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+  .btn { padding: 5px 12px; border-radius: 40px; font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; font-family: 'Inter', sans-serif; display: inline-flex; align-items: center; gap: 5px; }
+  .btn-primary { background: var(--grad); color: white; }
+  .btn-primary:hover { transform: scale(0.97); background: var(--grad-hover); }
+  .btn-secondary { background: white; border: 1px solid var(--gray-200); color: var(--gray-700); }
+  .btn-secondary:hover { border-color: var(--green); color: var(--green); background: rgba(16, 185, 129, 0.05); }
+  
+  .hint-text { font-size: 9px; color: var(--gray-500); margin-top: 3px; display: flex; align-items: center; gap: 4px; }
+  .divider { margin: 12px 0; border-top: 1px solid var(--gray-200); }
+  
+  .badge { display: inline-block; background: rgba(16, 185, 129, 0.1); padding: 2px 8px; border-radius: 12px; font-size: 9px; font-weight: 500; color: var(--green-dark); }
+  
+  .footer-note { margin-top: 1rem; padding-top: 0.8rem; border-top: var(--border-light); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; color: var(--gray-600); font-size: 0.65rem; }
+  
+  .toast { position: fixed; bottom: 20px; right: 20px; background: var(--green-dark); color: white; padding: 6px 14px; border-radius: 40px; font-size: 11px; font-weight: 500; z-index: 9999; animation: slideIn 0.3s ease; }
+  @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+  
+  .example-box { background: var(--gray-50); border-radius: 8px; padding: 8px; font-size: 10px; font-family: monospace; color: var(--gray-600); margin-top: 8px; border: 1px solid var(--gray-200); }
+</style>
+</head>
+<body>
+
+<div class="video-background"><video autoplay muted loop playsinline id="bgVideo"><source src="background.mp4" type="video/mp4"></video></div>
+<div class="video-overlay"></div>
+
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <a href="#" class="logo"></a>
+    <button class="menu-btn" id="menuBtn"><span></span><span></span><span></span></button>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#">Tools</a></li>
+      <li><a href="#">Scanner</a></li>
+      <li><a href="#" class="active">Gobuster</a></li>
+      <li><a href="#">Reports</a></li>
+      <li><span class="status-badge"><span class="status-dot"></span> Gobuster Builder</span></li>
+    </ul>
+  </div>
+</nav>
+
+<div class="app-container">
+  <aside class="sidebar">
+    <div class="logo-area">
+      <div class="logo-icon-large"><img src="solo_logo.jpeg" alt="CyberFriend" onerror="this.style.display='none';"></div>
+      <img src="company_text.jpeg" alt="CyberFriend" class="logo-title-img" onerror="this.style.display='none';">
+      <div class="logo-badge">GOBUSTER</div>
+    </div>
+    <div class="sidebar-nav">
+      <div class="nav-section-title"><i class="fas fa-info-circle"></i> INFO</div>
+      <div style="padding: 0 1rem;">
+        <p style="font-size: 10px; color: var(--gray-600); line-height: 1.4;">Gobuster is a tool for directory/file, DNS, and vhost busting written in Go.</p>
+      </div>
+    </div>
+    <div class="sidebar-footer"><i class="fas fa-shield-alt"></i> UI only · no execution</div>
+  </aside>
+
+  <main class="main-content">
+    <div class="scroll-content">
+      <div class="gobuster-container">
+        <div class="hero-card">
+          <div style="display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap;">
+            <div style="width: 38px; height: 38px; background: var(--grad); border-radius: 12px; display: flex; align-items: center; justify-content: center;"><i class="fas fa-folder-open" style="font-size: 18px; color: white;"></i></div>
+            <div><h4 style="margin:0; font-size: 1.1rem;">Gobuster Command Builder</h4><p style="color: var(--gray-600); margin-top: 2px; font-size: 11px;">Directory/File, DNS & VHost busting command generator</p></div>
+          </div>
+        </div>
+
+        <div class="warning-card"><i class="fas fa-exclamation-triangle"></i><span>FOR AUTHORIZED TESTING ONLY — Use only on systems you own or have explicit permission to test.</span></div>
+
+        <div class="two-columns">
+          <!-- Left Panel - Inputs -->
+          <div class="panel">
+            <div class="field">
+              <label><i class="fas fa-cogs"></i> Mode</label>
+              <select id="g-mode">
+                <option value="dir">📁 Directory/File Busting</option>
+                <option value="dns">🌐 DNS Subdomain Busting</option>
+                <option value="vhost">🏢 Virtual Host Busting</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label><i class="fas fa-globe"></i> Target</label>
+              <input id="g-target" placeholder="For dir/vhost: http://example.com | For DNS: example.com">
+              <div class="hint-text">URL for dir/vhost mode, domain for DNS mode</div>
+            </div>
+
+            <div class="field">
+              <label><i class="fas fa-book"></i> Wordlist</label>
+              <select id="g-wordlist">
+                <option value="">-- Select Wordlist --</option>
+                <option value="/usr/share/wordlists/dirb/common.txt">dirb – common.txt</option>
+                <option value="/usr/share/wordlists/dirb/big.txt">dirb – big.txt</option>
+                <option value="/usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt">dirbuster – medium</option>
+                <option value="/usr/share/seclists/Discovery/Web-Content/raft-medium-directories.txt">Seclists – raft-medium-dirs</option>
+                <option value="/usr/share/seclists/Discovery/Web-Content/raft-small-directories.txt">Seclists – raft-small-dirs</option>
+                <option value="/usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt">Seclists – DNS (top 5k)</option>
+                <option value="/usr/share/seclists/Discovery/DNS/namelist.txt">Seclists – DNS (namelist)</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label><i class="fas fa-file"></i> File Extensions (dir/vhost mode)</label>
+              <div id="extGrid" class="ext-grid">
+                <div class="ext-item"><input type="checkbox" value="html" id="ext-html"><label for="ext-html">.html</label></div>
+                <div class="ext-item"><input type="checkbox" value="php" id="ext-php"><label for="ext-php">.php</label></div>
+                <div class="ext-item"><input type="checkbox" value="js" id="ext-js"><label for="ext-js">.js</label></div>
+                <div class="ext-item"><input type="checkbox" value="json" id="ext-json"><label for="ext-json">.json</label></div>
+                <div class="ext-item"><input type="checkbox" value="txt" id="ext-txt"><label for="ext-txt">.txt</label></div>
+                <div class="ext-item"><input type="checkbox" value="xml" id="ext-xml"><label for="ext-xml">.xml</label></div>
+                <div class="ext-item"><input type="checkbox" value="bak" id="ext-bak"><label for="ext-bak">.bak</label></div>
+                <div class="ext-item"><input type="checkbox" value="sql" id="ext-sql"><label for="ext-sql">.sql</label></div>
+              </div>
+            </div>
+
+            <div class="custom-row">
+              <input id="customExt" type="text" placeholder="Add custom extension (e.g., asp, aspx)">
+              <button id="addExtBtn" class="btn btn-secondary" type="button"><i class="fas fa-plus"></i> Add</button>
+            </div>
+
+            <div class="field">
+              <label><i class="fas fa-cogs"></i> Additional Options</label>
+              <input id="g-options" placeholder="-t 30 -x php,txt --timeout 10s">
+              <div class="hint-text">Common: -t (threads), -x (extensions), --timeout, --no-status</div>
+            </div>
+          </div>
+
+          <!-- Right Panel - Preview -->
+          <div class="panel">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <strong><i class="fas fa-terminal"></i> Generated Command</strong>
+              <span class="badge" id="cmdLength">0 chars</span>
+            </div>
+
+            <div id="cmdPreview" class="cmd-preview">Enter target URL and select a wordlist to generate command.</div>
+
+            <div class="actions">
+              <button id="copyBtn" class="btn btn-primary"><i class="fas fa-copy"></i> Copy Command</button>
+              <button id="resetBtn" class="btn btn-secondary"><i class="fas fa-undo-alt"></i> Reset</button>
+              <button id="downloadBtn" class="btn btn-secondary"><i class="fas fa-download"></i> Save .txt</button>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="hint-text"><i class="fas fa-lightbulb"></i> Example commands:</div>
+            <div class="example-box">gobuster dir -u https://example.com -w /usr/share/wordlists/dirb/common.txt -t 30 -x php,html</div>
+            <div class="example-box">gobuster dns -d example.com -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt -t 20</div>
+            <div class="example-box">gobuster vhost -u https://example.com -w /usr/share/wordlists/dirb/common.txt --timeout 10s</div>
+          </div>
+        </div>
+
+        <div class="footer-note"><span><i class="fas fa-shield-alt"></i> CyberFriend — Gobuster Command Builder (UI-only)</span><span><i class="fas fa-clock"></i> <span id="liveTime"></span></span></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+function toast(msg) {
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.innerHTML = `<i class="fas fa-check-circle"></i> ${msg}`;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 1800);
+}
+
+function safeCopy(text, msg) {
+  navigator.clipboard?.writeText(text).then(() => toast(msg || 'Copied!')).catch(() => alert('Copy failed'));
+}
+
+// DOM Elements
+const g_mode = document.getElementById('g-mode');
+const g_target = document.getElementById('g-target');
+const g_wordlist = document.getElementById('g-wordlist');
+const g_options = document.getElementById('g-options');
+const cmdPreview = document.getElementById('cmdPreview');
+const copyBtn = document.getElementById('copyBtn');
+const resetBtn = document.getElementById('resetBtn');
+const downloadBtn = document.getElementById('downloadBtn');
+const customExt = document.getElementById('customExt');
+const addExtBtn = document.getElementById('addExtBtn');
+const cmdLengthSpan = document.getElementById('cmdLength');
+
+// Get selected extensions
+function getSelectedExts() {
+  const checkboxes = document.querySelectorAll('#extGrid input[type="checkbox"]');
+  return Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.value);
+}
+
+// Add custom extension
+addExtBtn.addEventListener('click', () => {
+  const raw = customExt.value.trim();
+  if (!raw) { toast('⚠️ Enter an extension'); return; }
+  const ext = raw.replace(/^\./, '').toLowerCase();
+  const existing = Array.from(document.querySelectorAll('#extGrid input[type="checkbox"]')).find(cb => cb.value === ext);
+  if (existing) {
+    existing.checked = true;
+    toast(`✅ .${ext} already exists, selected`);
+  } else {
+    const extGrid = document.getElementById('extGrid');
+    const div = document.createElement('div');
+    div.className = 'ext-item';
+    div.innerHTML = `<input type="checkbox" value="${ext}" id="ext-custom-${ext}" checked><label for="ext-custom-${ext}">.${ext}</label>`;
+    extGrid.appendChild(div);
+    toast(`✅ .${ext} added`);
+  }
+  customExt.value = '';
+  updateCommand();
+});
+
+// Build command
+function updateCommand() {
+  const mode = g_mode.value;
+  const target = g_target.value.trim();
+  const wordlist = g_wordlist.value;
+  const options = g_options.value.trim();
+  
+  if (!target || !wordlist) {
+    cmdPreview.textContent = '⚠️ Enter target URL and select a wordlist';
+    cmdLengthSpan.textContent = '0 chars';
+    return;
+  }
+  
+  let base = `gobuster ${mode}`;
+  
+  if (mode === 'dir' || mode === 'vhost') {
+    base += ` -u ${target} -w ${wordlist}`;
+  } else if (mode === 'dns') {
+    base += ` -d ${target} -w ${wordlist}`;
+  }
+  
+  // Extensions only for dir and vhost modes
+  const exts = getSelectedExts();
+  let extPart = '';
+  if (exts.length && (mode === 'dir' || mode === 'vhost')) {
+    extPart = ` -x ${exts.join(',')}`;
+  }
+  
+  const full = `${base}${extPart}${options ? ' ' + options : ''}`.trim();
+  cmdPreview.textContent = full;
+  cmdLengthSpan.textContent = full.length + ' chars';
+}
+
+// Event listeners
+[g_mode, g_target, g_wordlist, g_options].forEach(el => {
+  if (el) el.addEventListener('input', updateCommand);
+});
+document.querySelectorAll('#extGrid input[type="checkbox"]').forEach(cb => {
+  cb.addEventListener('change', updateCommand);
+});
+
+// Copy command
+copyBtn.addEventListener('click', async () => {
+  const cmd = cmdPreview.textContent;
+  if (cmd && !cmd.startsWith('⚠️')) {
+    safeCopy(cmd, 'Command copied!');
+  } else {
+    toast('⚠️ No valid command to copy');
+  }
+});
+
+// Reset form
+resetBtn.addEventListener('click', () => {
+  g_mode.value = 'dir';
+  g_target.value = '';
+  g_wordlist.value = '';
+  g_options.value = '';
+  document.querySelectorAll('#extGrid input[type="checkbox"]').forEach(cb => cb.checked = false);
+  updateCommand();
+  toast('🔄 Form reset');
+});
+
+// Download command
+downloadBtn.addEventListener('click', () => {
+  const cmd = cmdPreview.textContent;
+  if (!cmd || cmd.startsWith('⚠️')) {
+    toast('⚠️ No valid command to download');
+    return;
+  }
+  const blob = new Blob([cmd], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'gobuster-command.txt';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  toast('📄 Command saved as gobuster-command.txt');
+});
+
+// Keyboard shortcut Ctrl/Cmd + C
+window.addEventListener('keydown', async (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
+    const active = document.activeElement;
+    if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.tagName === 'SELECT')) return;
+    e.preventDefault();
+    const cmd = cmdPreview.textContent;
+    if (cmd && !cmd.startsWith('⚠️')) safeCopy(cmd, 'Command copied!');
+  }
+});
+
+// Navbar scroll effect
+window.addEventListener('scroll', () => {
+  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 20);
+});
+
+// Mobile menu toggle
+const menuBtn = document.getElementById('menuBtn');
+const navLinksEl = document.getElementById('navLinks');
+if (menuBtn) {
+  menuBtn.addEventListener('click', () => navLinksEl.classList.toggle('open'));
+}
+document.querySelectorAll('.nav-links a').forEach(link => {
+  link.addEventListener('click', () => navLinksEl.classList.remove('open'));
+});
+
+// Live time
+function updateLiveTime() {
+  const el = document.getElementById('liveTime');
+  if (el) {
+    el.textContent = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+  }
+}
+updateLiveTime();
+setInterval(updateLiveTime, 1000);
+
+// Video autoplay
+const video = document.getElementById('bgVideo');
+if (video) {
+  video.play().catch(() => {
+    document.body.addEventListener('click', () => video.play(), { once: true });
+  });
+}
+
+// Initialize
+updateCommand();
+</script>
+</body>
+</html>

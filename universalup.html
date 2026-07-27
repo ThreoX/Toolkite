@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>CyberFriend | Credentials Manager</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', sans-serif; background: #ffffff; color: #1e293b; line-height: 1.5; overflow-x: hidden; font-size: 14px; }
+  .video-background { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; overflow: hidden; }
+  .video-background video { min-width: 100%; min-height: 100%; width: auto; height: auto; position: absolute; top: 50%; left: 50%; opacity: 0.35; transform: translate(-50%, -50%); object-fit: cover; }
+  .video-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: transparent; z-index: -1; }
+  :root { --white: #ffffff; --offwhite: #f9fafb; --gray-50: #f8fafc; --gray-100: #f1f5f9; --gray-200: #e2e8f0; --gray-300: #cbd5e1; --gray-600: #475569; --gray-700: #334155; --gray-800: #1e293b; --gray-900: #0f172a; --green: #10b981; --green-dark: #059669; --blue: #3b82f6; --blue-dark: #2563eb; --grad: linear-gradient(135deg, #10b981, #3b82f6); --grad-hover: linear-gradient(135deg, #059669, #2563eb); --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05); --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03); --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025); --border-light: 1px solid rgba(226, 232, 240, 0.5); }
+  h1, h2, h3, h4, h5, h6 { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; letter-spacing: -0.02em; }
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: rgba(241, 245, 249, 0.5); }
+  ::-webkit-scrollbar-thumb { background: var(--green); border-radius: 10px; }
+  
+  .navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; padding: 0 5%; transition: all 0.3s ease; background: transparent; }
+  .navbar.scrolled { background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(12px); border-bottom: var(--border-light); box-shadow: var(--shadow-sm); }
+  .nav-container { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 60px; }
+  .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+  .nav-links { display: flex; list-style: none; gap: 1.8rem; align-items: center; }
+  .nav-links a { text-decoration: none; font-size: 0.85rem; font-weight: 500; color: var(--gray-700); transition: color 0.2s; }
+  .nav-links a:hover, .nav-links a.active { color: var(--green); }
+  .status-badge { background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.25); padding: 0.2rem 0.9rem; border-radius: 40px; font-size: 0.7rem; font-weight: 600; color: var(--green-dark); display: flex; align-items: center; gap: 6px; }
+  .status-dot { width: 7px; height: 7px; background: var(--green); border-radius: 50%; animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(1.2); } }
+  .menu-btn { display: none; background: none; border: none; cursor: pointer; padding: 8px; }
+  .menu-btn span { display: block; width: 22px; height: 2px; background: var(--gray-800); margin: 5px 0; border-radius: 2px; }
+  
+  .app-container { display: flex; padding-top: 60px; min-height: 100vh; }
+  
+  /* Sidebar */
+  .sidebar { width: 240px; background: transparent; backdrop-filter: blur(1px); border-right: var(--border-light); height: calc(100vh - 60px); position: sticky; top: 60px; overflow-y: auto; flex-shrink: 0; }
+  .logo-area { padding: 1.2rem 1rem 1rem; border-bottom: var(--border-light); text-align: center; }
+  .logo-icon-large { width: 50px; height: 50px; margin: 0 auto 0.6rem; }
+  .logo-icon-large img { width: 100%; height: 100%; object-fit: contain; }
+  .logo-title-img { height: 24px; width: auto; object-fit: contain; margin-bottom: 0.3rem; }
+  .logo-badge { font-size: 0.55rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--green); background: rgba(16, 185, 129, 0.1); padding: 0.12rem 0.6rem; border-radius: 20px; display: inline-block; }
+  .sidebar-nav { padding: 0.8rem 0; }
+  .nav-section-title { padding: 0.4rem 1rem; font-size: 0.6rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--gray-600); display: flex; align-items: center; gap: 6px; }
+  .sidebar-footer { padding: 0.8rem 1rem; border-top: var(--border-light); color: var(--gray-600); font-size: 0.6rem; text-align: center; }
+  
+  .main-content { flex: 1; overflow-y: auto; height: calc(100vh - 60px); }
+  .scroll-content { padding: 1.2rem; }
+  
+  /* Credentials Manager Styles */
+  .creds-container { max-width: 1000px; margin: 0 auto; }
+  .hero-card { background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(8px); border-radius: 16px; padding: 1rem; margin-bottom: 1rem; border: var(--border-light); text-align: center; }
+  .warning-card { background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(239, 68, 68, 0.05)); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 10px; padding: 0.6rem 1rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 10px; }
+  .warning-card i { color: #f59e0b; font-size: 14px; }
+  .warning-card span { font-size: 11px; color: #b45309; }
+  
+  .panel { background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(8px); border-radius: 16px; padding: 1rem; border: var(--border-light); }
+  
+  .creds-table { width: 100%; border-collapse: collapse; }
+  .creds-table th { text-align: left; padding: 10px 8px; color: var(--gray-600); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--gray-200); }
+  .creds-table td { padding: 8px; border-bottom: 1px solid var(--gray-100); }
+  .creds-table input { width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--gray-200); background: white; font-family: 'Inter', monospace; font-size: 12px; transition: all 0.2s; }
+  .creds-table input:focus { outline: none; border-color: var(--green); box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1); }
+  
+  .del-btn { background: none; border: none; color: var(--danger); cursor: pointer; font-size: 14px; padding: 4px 8px; border-radius: 6px; transition: all 0.2s; }
+  .del-btn:hover { background: rgba(239, 68, 68, 0.1); transform: scale(1.05); }
+  
+  .action-buttons { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+  .btn { padding: 6px 14px; border-radius: 40px; font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; font-family: 'Inter', sans-serif; display: inline-flex; align-items: center; gap: 6px; }
+  .btn-primary { background: var(--grad); color: white; }
+  .btn-primary:hover { transform: scale(0.97); background: var(--grad-hover); }
+  .btn-secondary { background: white; border: 1px solid var(--gray-200); color: var(--gray-700); }
+  .btn-secondary:hover { border-color: var(--green); color: var(--green); background: rgba(16, 185, 129, 0.05); }
+  
+  .preview-box { background: var(--gray-50); border-radius: 10px; padding: 12px; font-family: 'Courier New', monospace; font-size: 11px; color: var(--gray-800); white-space: pre-wrap; word-break: break-all; border: 1px solid var(--gray-200); min-height: 80px; max-height: 120px; overflow-y: auto; margin-top: 12px; }
+  
+  .footer-note { margin-top: 1rem; padding-top: 0.8rem; border-top: var(--border-light); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; color: var(--gray-600); font-size: 0.65rem; }
+  .toast { position: fixed; bottom: 20px; right: 20px; background: var(--green-dark); color: white; padding: 6px 14px; border-radius: 40px; font-size: 11px; font-weight: 500; z-index: 9999; animation: slideIn 0.3s ease; }
+  @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+</style>
+</head>
+<body>
+
+<div class="video-background"><video autoplay muted loop playsinline id="bgVideo"><source src="background.mp4" type="video/mp4"></video></div>
+<div class="video-overlay"></div>
+
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <a href="#" class="logo"></a>
+    <button class="menu-btn" id="menuBtn"><span></span><span></span><span></span></button>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#">Tools</a></li>
+      <li><a href="#">Scanner</a></li>
+      <li><a href="#" class="active">Credentials</a></li>
+      <li><a href="#">Reports</a></li>
+      <li><span class="status-badge"><span class="status-dot"></span> Credentials Manager</span></li>
+    </ul>
+  </div>
+</nav>
+
+<div class="app-container">
+  <aside class="sidebar">
+    <div class="logo-area">
+      <div class="logo-icon-large"><img src="solo_logo.jpeg" alt="CyberFriend" onerror="this.style.display='none';"></div>
+      <img src="company_text.jpeg" alt="CyberFriend" class="logo-title-img" onerror="this.style.display='none';">
+      <div class="logo-badge">CREDENTIALS</div>
+    </div>
+    <div class="sidebar-nav">
+      <div class="nav-section-title"><i class="fas fa-info-circle"></i> INFO</div>
+      <div style="padding: 0 1rem;">
+        <p style="font-size: 10px; color: var(--gray-600); line-height: 1.4;">Manage username/password pairs. Add, edit, delete, copy all pairs, or download as text file.</p>
+      </div>
+    </div>
+    <div class="sidebar-footer"><i class="fas fa-shield-alt"></i> UI only · no execution</div>
+  </aside>
+
+  <main class="main-content">
+    <div class="scroll-content">
+      <div class="creds-container">
+        <div class="hero-card">
+          <div style="display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap;">
+            <div style="width: 38px; height: 38px; background: var(--grad); border-radius: 12px; display: flex; align-items: center; justify-content: center;"><i class="fas fa-key" style="font-size: 18px; color: white;"></i></div>
+            <div><h4 style="margin:0; font-size: 1.1rem;">Credentials Manager</h4><p style="color: var(--gray-600); margin-top: 2px; font-size: 11px;">Username & Password Pairs Management</p></div>
+          </div>
+        </div>
+
+        <div class="warning-card"><i class="fas fa-exclamation-triangle"></i><span>FOR AUTHORIZED TESTING ONLY — Manage credential pairs responsibly.</span></div>
+
+        <div class="panel">
+          <div style="overflow-x: auto;">
+            <table class="creds-table">
+              <thead>
+                <tr><th style="width: 50px;">#</th><th>Username</th><th>Password</th><th style="width: 60px;">Action</th></tr>
+              </thead>
+              <tbody id="credsBody"></tbody>
+            </table>
+          </div>
+
+          <div class="action-buttons">
+            <button id="addBtn" class="btn btn-primary"><i class="fas fa-plus"></i> Add Row</button>
+            <button id="sampleBtn" class="btn btn-secondary"><i class="fas fa-database"></i> Add Sample</button>
+            <button id="clearBtn" class="btn btn-secondary"><i class="fas fa-trash-alt"></i> Clear All</button>
+            <button id="copyBtn" class="btn btn-primary"><i class="fas fa-copy"></i> Copy Pairs</button>
+            <button id="downloadBtn" class="btn btn-secondary"><i class="fas fa-download"></i> Download .txt</button>
+          </div>
+
+          <div style="margin-top: 16px;">
+            <label style="font-size: 10px; font-weight: 600; color: var(--gray-600); text-transform: uppercase;"><i class="fas fa-eye"></i> Preview (Tab-separated)</label>
+            <div id="preview" class="preview-box">No credential pairs added yet.</div>
+          </div>
+        </div>
+
+        <div class="footer-note"><span><i class="fas fa-shield-alt"></i> CyberFriend — Credentials Manager</span><span><i class="fas fa-clock"></i> <span id="liveTime"></span></span></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+function toast(msg) {
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.innerHTML = `<i class="fas fa-check-circle"></i> ${msg}`;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 1800);
+}
+
+function copyToClipboard(text, msg) {
+  navigator.clipboard?.writeText(text).then(() => toast(msg || 'Copied!')).catch(() => alert('Copy failed'));
+}
+
+// Credentials data
+let credentials = [];
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function generatePairs() {
+  return credentials.map(c => `${c.username}\t${c.password}`).join('\n');
+}
+
+function updatePreview() {
+  const preview = document.getElementById('preview');
+  const pairs = generatePairs();
+  preview.textContent = pairs || 'No credential pairs added yet.';
+}
+
+function renderTable() {
+  const tbody = document.getElementById('credsBody');
+  tbody.innerHTML = '';
+  
+  credentials.forEach((cred, index) => {
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td style="color: var(--gray-500); font-size: 12px;">${index + 1}</td>
+      <td><input type="text" class="cred-username" data-index="${index}" value="${escapeHtml(cred.username)}" placeholder="username"></td>
+      <td><input type="text" class="cred-password" data-index="${index}" value="${escapeHtml(cred.password)}" placeholder="password"></td>
+      <td><button class="del-btn" data-index="${index}"><i class="fas fa-trash-alt"></i></button></td>
+    `;
+    tbody.appendChild(row);
+  });
+  
+  // Add event listeners to inputs
+  document.querySelectorAll('.cred-username').forEach(input => {
+    input.addEventListener('input', (e) => {
+      const idx = parseInt(e.target.dataset.index);
+      credentials[idx].username = e.target.value;
+      updatePreview();
+    });
+  });
+  
+  document.querySelectorAll('.cred-password').forEach(input => {
+    input.addEventListener('input', (e) => {
+      const idx = parseInt(e.target.dataset.index);
+      credentials[idx].password = e.target.value;
+      updatePreview();
+    });
+  });
+  
+  document.querySelectorAll('.del-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const idx = parseInt(btn.dataset.index);
+      credentials.splice(idx, 1);
+      renderTable();
+      updatePreview();
+      toast('Row deleted');
+    });
+  });
+  
+  updatePreview();
+}
+
+// Add new row
+function addRow(username = '', password = '') {
+  credentials.push({ username, password });
+  renderTable();
+}
+
+// Add sample data
+function addSample() {
+  credentials.push({ username: 'admin', password: 'admin' });
+  credentials.push({ username: 'root', password: 'toor' });
+  credentials.push({ username: 'user', password: 'password123' });
+  renderTable();
+  toast('Sample credentials added');
+}
+
+// Clear all
+function clearAll() {
+  if (credentials.length > 0 && confirm('Are you sure you want to clear all credentials?')) {
+    credentials = [];
+    renderTable();
+    toast('All credentials cleared');
+  }
+}
+
+// Copy all pairs
+function copyAll() {
+  const pairs = generatePairs();
+  if (!pairs) {
+    toast('No credentials to copy');
+    return;
+  }
+  copyToClipboard(pairs, `${credentials.length} credential pairs copied!`);
+}
+
+// Download as file
+function downloadFile() {
+  const pairs = generatePairs();
+  if (!pairs) {
+    toast('No credentials to download');
+    return;
+  }
+  const blob = new Blob([pairs], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `credentials_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.txt`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  toast('Credentials downloaded');
+}
+
+// Event listeners
+document.getElementById('addBtn').addEventListener('click', () => addRow());
+document.getElementById('sampleBtn').addEventListener('click', addSample);
+document.getElementById('clearBtn').addEventListener('click', clearAll);
+document.getElementById('copyBtn').addEventListener('click', copyAll);
+document.getElementById('downloadBtn').addEventListener('click', downloadFile);
+
+// Keyboard shortcut Ctrl/Cmd + C
+window.addEventListener('keydown', async (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
+    const active = document.activeElement;
+    if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA')) return;
+    e.preventDefault();
+    const pairs = generatePairs();
+    if (pairs) copyToClipboard(pairs, 'Credentials copied!');
+  }
+});
+
+// Navbar scroll effect
+window.addEventListener('scroll', () => {
+  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 20);
+});
+
+// Mobile menu toggle
+const menuBtn = document.getElementById('menuBtn');
+const navLinksEl = document.getElementById('navLinks');
+if (menuBtn) {
+  menuBtn.addEventListener('click', () => navLinksEl.classList.toggle('open'));
+}
+document.querySelectorAll('.nav-links a').forEach(link => {
+  link.addEventListener('click', () => navLinksEl.classList.remove('open'));
+});
+
+// Live time
+function updateLiveTime() {
+  const el = document.getElementById('liveTime');
+  if (el) {
+    el.textContent = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+  }
+}
+updateLiveTime();
+setInterval(updateLiveTime, 1000);
+
+// Video autoplay
+const video = document.getElementById('bgVideo');
+if (video) {
+  video.play().catch(() => {
+    document.body.addEventListener('click', () => video.play(), { once: true });
+  });
+}
+
+// Initialize with two empty rows
+addRow();
+addRow();
+</script>
+</body>
+</html>

@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>CyberFriend | Fuzz Command Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', sans-serif; background: #ffffff; color: #1e293b; line-height: 1.5; overflow-x: hidden; font-size: 14px; }
+  .video-background { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; overflow: hidden; }
+  .video-background video { min-width: 100%; min-height: 100%; width: auto; height: auto; position: absolute; top: 50%; left: 50%; opacity: 0.35; transform: translate(-50%, -50%); object-fit: cover; }
+  .video-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: transparent; z-index: -1; }
+  :root { --white: #ffffff; --offwhite: #f9fafb; --gray-50: #f8fafc; --gray-100: #f1f5f9; --gray-200: #e2e8f0; --gray-300: #cbd5e1; --gray-600: #475569; --gray-700: #334155; --gray-800: #1e293b; --gray-900: #0f172a; --green: #10b981; --green-dark: #059669; --blue: #3b82f6; --blue-dark: #2563eb; --grad: linear-gradient(135deg, #10b981, #3b82f6); --grad-hover: linear-gradient(135deg, #059669, #2563eb); --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05); --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03); --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025); --border-light: 1px solid rgba(226, 232, 240, 0.5); }
+  h1, h2, h3, h4, h5, h6 { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; letter-spacing: -0.02em; }
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: rgba(241, 245, 249, 0.5); }
+  ::-webkit-scrollbar-thumb { background: var(--green); border-radius: 10px; }
+  
+  .navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; padding: 0 5%; transition: all 0.3s ease; background: transparent; }
+  .navbar.scrolled { background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(12px); border-bottom: var(--border-light); box-shadow: var(--shadow-sm); }
+  .nav-container { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 60px; }
+  .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+  .nav-links { display: flex; list-style: none; gap: 1.8rem; align-items: center; }
+  .nav-links a { text-decoration: none; font-size: 0.85rem; font-weight: 500; color: var(--gray-700); transition: color 0.2s; }
+  .nav-links a:hover, .nav-links a.active { color: var(--green); }
+  .status-badge { background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.25); padding: 0.2rem 0.9rem; border-radius: 40px; font-size: 0.7rem; font-weight: 600; color: var(--green-dark); display: flex; align-items: center; gap: 6px; }
+  .status-dot { width: 7px; height: 7px; background: var(--green); border-radius: 50%; animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(1.2); } }
+  .menu-btn { display: none; background: none; border: none; cursor: pointer; padding: 8px; }
+  .menu-btn span { display: block; width: 22px; height: 2px; background: var(--gray-800); margin: 5px 0; border-radius: 2px; }
+  
+  .app-container { display: flex; padding-top: 60px; min-height: 100vh; }
+  
+  /* Sidebar */
+  .sidebar { width: 240px; background: transparent; backdrop-filter: blur(1px); border-right: var(--border-light); height: calc(100vh - 60px); position: sticky; top: 60px; overflow-y: auto; flex-shrink: 0; }
+  .logo-area { padding: 1.2rem 1rem 1rem; border-bottom: var(--border-light); text-align: center; }
+  .logo-icon-large { width: 50px; height: 50px; margin: 0 auto 0.6rem; }
+  .logo-icon-large img { width: 100%; height: 100%; object-fit: contain; }
+  .logo-title-img { height: 24px; width: auto; object-fit: contain; margin-bottom: 0.3rem; }
+  .logo-badge { font-size: 0.55rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--green); background: rgba(16, 185, 129, 0.1); padding: 0.12rem 0.6rem; border-radius: 20px; display: inline-block; }
+  .sidebar-nav { padding: 0.8rem 0; }
+  .nav-section-title { padding: 0.4rem 1rem; font-size: 0.6rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--gray-600); display: flex; align-items: center; gap: 6px; }
+  .sidebar-footer { padding: 0.8rem 1rem; border-top: var(--border-light); color: var(--gray-600); font-size: 0.6rem; text-align: center; }
+  
+  .main-content { flex: 1; overflow-y: auto; height: calc(100vh - 60px); }
+  .scroll-content { padding: 1.2rem; }
+  
+  /* Fuzz Styles */
+  .fuzz-container { max-width: 1100px; margin: 0 auto; }
+  .hero-card { background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(8px); border-radius: 16px; padding: 1rem; margin-bottom: 1rem; border: var(--border-light); text-align: center; }
+  .warning-card { background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(239, 68, 68, 0.05)); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 10px; padding: 0.6rem 1rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 10px; }
+  .warning-card i { color: #f59e0b; font-size: 14px; }
+  .warning-card span { font-size: 11px; color: #b45309; }
+  
+  .two-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media (max-width: 900px) { .two-columns { grid-template-columns: 1fr; } .sidebar { display: none; } .menu-btn { display: block; } .nav-links { display: none; position: fixed; top: 60px; left: 0; right: 0; background: white; flex-direction: column; padding: 1rem; gap: 0.8rem; box-shadow: var(--shadow-lg); z-index: 999; } .nav-links.open { display: flex; } }
+  
+  .panel { background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(8px); border-radius: 16px; padding: 1rem; border: var(--border-light); }
+  .field { margin-bottom: 12px; }
+  .field label { display: block; font-size: 10px; font-weight: 600; color: var(--gray-600); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.3px; }
+  .field input, .field select, .field textarea { width: 100%; padding: 7px 10px; border-radius: 8px; border: 1px solid var(--gray-200); background: white; font-family: 'Inter', monospace; font-size: 12px; transition: all 0.2s; }
+  .field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--green); box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1); }
+  
+  .cmd-preview { background: var(--gray-50); border-radius: 10px; padding: 10px 12px; font-family: 'Courier New', monospace; font-size: 11px; color: var(--gray-800); white-space: pre-wrap; word-break: break-all; border: 1px solid var(--gray-200); min-height: 100px; max-height: 140px; overflow-y: auto; }
+  
+  .actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+  .btn { padding: 5px 12px; border-radius: 40px; font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; font-family: 'Inter', sans-serif; display: inline-flex; align-items: center; gap: 5px; }
+  .btn-primary { background: var(--grad); color: white; }
+  .btn-primary:hover { transform: scale(0.97); background: var(--grad-hover); }
+  .btn-secondary { background: white; border: 1px solid var(--gray-200); color: var(--gray-700); }
+  .btn-secondary:hover { border-color: var(--green); color: var(--green); background: rgba(16, 185, 129, 0.05); }
+  
+  .hint-text { font-size: 9px; color: var(--gray-500); margin-top: 3px; display: flex; align-items: center; gap: 4px; }
+  .divider { margin: 12px 0; border-top: 1px solid var(--gray-200); }
+  
+  .badge { display: inline-block; background: rgba(16, 185, 129, 0.1); padding: 2px 8px; border-radius: 12px; font-size: 9px; font-weight: 500; color: var(--green-dark); }
+  
+  .footer-note { margin-top: 1rem; padding-top: 0.8rem; border-top: var(--border-light); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; color: var(--gray-600); font-size: 0.65rem; }
+  
+  .toast { position: fixed; bottom: 20px; right: 20px; background: var(--green-dark); color: white; padding: 6px 14px; border-radius: 40px; font-size: 11px; font-weight: 500; z-index: 9999; animation: slideIn 0.3s ease; }
+  @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+  
+  .example-box { background: var(--gray-50); border-radius: 8px; padding: 8px; font-size: 10px; font-family: monospace; color: var(--gray-600); margin-top: 8px; border: 1px solid var(--gray-200); }
+  .info-note { background: rgba(16, 185, 129, 0.05); border-left: 3px solid var(--green); padding: 8px; border-radius: 8px; margin-top: 12px; }
+</style>
+</head>
+<body>
+
+<div class="video-background"><video autoplay muted loop playsinline id="bgVideo"><source src="background.mp4" type="video/mp4"></video></div>
+<div class="video-overlay"></div>
+
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <a href="#" class="logo"></a>
+    <button class="menu-btn" id="menuBtn"><span></span><span></span><span></span></button>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#">Tools</a></li>
+      <li><a href="#">Scanner</a></li>
+      <li><a href="#" class="active">Fuzzer</a></li>
+      <li><a href="#">Reports</a></li>
+      <li><span class="status-badge"><span class="status-dot"></span> Fuzz Builder</span></li>
+    </ul>
+  </div>
+</nav>
+
+<div class="app-container">
+  <aside class="sidebar">
+    <div class="logo-area">
+      <div class="logo-icon-large"><img src="solo_logo.jpeg" alt="CyberFriend" onerror="this.style.display='none';"></div>
+      <img src="company_text.jpeg" alt="CyberFriend" class="logo-title-img" onerror="this.style.display='none';">
+      <div class="logo-badge">FUZZ BUILDER</div>
+    </div>
+    <div class="sidebar-nav">
+      <div class="nav-section-title"><i class="fas fa-info-circle"></i> INFO</div>
+      <div style="padding: 0 1rem;">
+        <p style="font-size: 10px; color: var(--gray-600); line-height: 1.4;">Fuzzing command generator for tools like ffuf, wfuzz, gobuster. Tool-agnostic syntax.</p>
+      </div>
+    </div>
+    <div class="sidebar-footer"><i class="fas fa-shield-alt"></i> UI only · no execution</div>
+  </aside>
+
+  <main class="main-content">
+    <div class="scroll-content">
+      <div class="fuzz-container">
+        <div class="hero-card">
+          <div style="display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap;">
+            <div style="width: 38px; height: 38px; background: var(--grad); border-radius: 12px; display: flex; align-items: center; justify-content: center;"><i class="fas fa-bomb" style="font-size: 18px; color: white;"></i></div>
+            <div><h4 style="margin:0; font-size: 1.1rem;">Fuzz Command Builder</h4><p style="color: var(--gray-600); margin-top: 2px; font-size: 11px;">Generate fuzzing commands for various tools (ffuf, wfuzz, gobuster)</p></div>
+          </div>
+        </div>
+
+        <div class="warning-card"><i class="fas fa-exclamation-triangle"></i><span>FOR AUTHORIZED TESTING ONLY — Use only on systems you own or have explicit permission to test.</span></div>
+
+        <div class="two-columns">
+          <!-- Left Panel - Inputs -->
+          <div class="panel">
+            <div class="field">
+              <label><i class="fas fa-globe"></i> Target URL / Endpoint</label>
+              <input id="u-target" placeholder="https://example.com/api/users?id=FUZZ">
+              <div class="hint-text">Use <code class="hint-text">FUZZ</code> as placeholder for injection point</div>
+            </div>
+
+            <div class="field">
+              <label><i class="fas fa-exchange-alt"></i> HTTP Method</label>
+              <select id="u-method">
+                <option value="GET">GET</option>
+                <option value="POST">POST</option>
+                <option value="PUT">PUT</option>
+                <option value="DELETE">DELETE</option>
+                <option value="PATCH">PATCH</option>
+                <option value="HEAD">HEAD</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label><i class="fas fa-list"></i> Wordlist / Payloads</label>
+              <select id="u-payloads">
+                <option value="">-- Select Wordlist --</option>
+                <option value="/usr/share/wordlists/dirb/common.txt">dirb – common.txt</option>
+                <option value="/usr/share/wordlists/dirb/big.txt">dirb – big.txt</option>
+                <option value="/usr/share/seclists/Discovery/Web-Content/raft-medium-directories.txt">Seclists – raft-medium-dirs</option>
+                <option value="/usr/share/seclists/Fuzzing/sql-injection.txt">Seclists – SQL injection</option>
+                <option value="/usr/share/seclists/Fuzzing/XSS.txt">Seclists – XSS payloads</option>
+              </select>
+              <div class="hint-text">Or specify custom path in tool options</div>
+            </div>
+
+            <div class="field">
+              <label><i class="fas fa-crosshairs"></i> Injection Position</label>
+              <select id="u-place">
+                <option value="url">URL (use FUZZ placeholder in URL)</option>
+                <option value="body">Body (use FUZZ in body template)</option>
+                <option value="header">Header (specify header with FUZZ)</option>
+              </select>
+            </div>
+
+            <div class="field" id="bodyField">
+              <label><i class="fas fa-code"></i> Body Template (use FUZZ)</label>
+              <textarea id="u-body" rows="3" placeholder='{"username":"FUZZ","password":"test"}'></textarea>
+            </div>
+
+            <div class="field" id="headerField">
+              <label><i class="fas fa-heading"></i> Custom Headers (one per line)</label>
+              <textarea id="u-headers" rows="3" placeholder="X-Api-Key: abc123&#10;User-Agent: fuzz-bot&#10;Authorization: Bearer FUZZ"></textarea>
+              <div class="hint-text">Use FUZZ in header values for injection</div>
+            </div>
+
+            <div class="field">
+              <label><i class="fas fa-cogs"></i> Tool Options</label>
+              <input id="u-options" placeholder="--concurrency 20 --timeout 10 --filter-size 1234">
+              <div class="hint-text">Tool-specific flags (threads, timeout, filters, etc.)</div>
+            </div>
+          </div>
+
+          <!-- Right Panel - Preview -->
+          <div class="panel">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <strong><i class="fas fa-terminal"></i> Generated Command</strong>
+              <span class="badge" id="cmdLength">0 chars</span>
+            </div>
+
+            <div id="cmdPreview" class="cmd-preview">Enter target URL and select a wordlist to generate a fuzzing command.</div>
+
+            <div class="actions">
+              <button id="copyBtn" class="btn btn-primary"><i class="fas fa-copy"></i> Copy Command</button>
+              <button id="resetBtn" class="btn btn-secondary"><i class="fas fa-undo-alt"></i> Reset</button>
+              <button id="downloadBtn" class="btn btn-secondary"><i class="fas fa-download"></i> Save .txt</button>
+            </div>
+
+            <div class="info-note">
+              <div class="hint-text"><i class="fas fa-lightbulb"></i> Tool-agnostic syntax — Adapt to your tool:</div>
+              <div class="example-box" style="margin-top: 6px;">ffuf -u "https://example.com/FUZZ" -w wordlist.txt -t 20</div>
+              <div class="example-box">wfuzz -z file,wordlist.txt --hc 404 "https://example.com/FUZZ"</div>
+              <div class="example-box">gobuster dir -u https://example.com -w wordlist.txt -t 30</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="footer-note"><span><i class="fas fa-shield-alt"></i> CyberFriend — Fuzz Command Builder (UI-only)</span><span><i class="fas fa-clock"></i> <span id="liveTime"></span></span></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+function toast(msg) {
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.innerHTML = `<i class="fas fa-check-circle"></i> ${msg}`;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 1800);
+}
+
+function safeCopy(text, msg) {
+  navigator.clipboard?.writeText(text).then(() => toast(msg || 'Copied!')).catch(() => alert('Copy failed'));
+}
+
+// DOM Elements
+const u_target = document.getElementById('u-target');
+const u_method = document.getElementById('u-method');
+const u_payloads = document.getElementById('u-payloads');
+const u_place = document.getElementById('u-place');
+const u_body = document.getElementById('u-body');
+const u_headers = document.getElementById('u-headers');
+const u_options = document.getElementById('u-options');
+const cmdPreview = document.getElementById('cmdPreview');
+const copyBtn = document.getElementById('copyBtn');
+const resetBtn = document.getElementById('resetBtn');
+const downloadBtn = document.getElementById('downloadBtn');
+const cmdLengthSpan = document.getElementById('cmdLength');
+
+// Show/hide body/header fields based on injection position
+function togglePositionFields() {
+  const place = u_place.value;
+  const bodyField = document.getElementById('bodyField');
+  const headerField = document.getElementById('headerField');
+  
+  if (place === 'body') {
+    bodyField.style.display = 'block';
+    headerField.style.display = 'block';
+  } else if (place === 'header') {
+    bodyField.style.display = 'none';
+    headerField.style.display = 'block';
+  } else {
+    bodyField.style.display = 'none';
+    headerField.style.display = 'none';
+  }
+}
+
+// Build command
+function updateCommand() {
+  const target = u_target.value.trim();
+  const method = u_method.value;
+  const wordlist = u_payloads.value;
+  const place = u_place.value;
+  const body = u_body.value.trim();
+  const headers = u_headers.value.trim();
+  const options = u_options.value.trim();
+  
+  if (!target || !wordlist) {
+    cmdPreview.textContent = '⚠️ Enter target URL (with FUZZ placeholder) and select a wordlist';
+    cmdLengthSpan.textContent = '0 chars';
+    return;
+  }
+  
+  if (!target.includes('FUZZ') && place === 'url') {
+    cmdPreview.textContent = '⚠️ URL should contain "FUZZ" as the injection point placeholder';
+    cmdLengthSpan.textContent = '0 chars';
+    return;
+  }
+  
+  let cmd = `fuzzer -u "${target}" -w ${wordlist} -m ${method}`;
+  
+  if (place === 'body' && body) {
+    cmd += ` -d '${body.replace(/'/g, "\\'")}'`;
+  }
+  
+  if (headers) {
+    const headerLines = headers.split(/\n+/).map(l => l.trim()).filter(Boolean);
+    if (headerLines.length) {
+      const headerStr = headerLines.join('; ');
+      cmd += ` -H "${headerStr.replace(/"/g, '\\"')}"`;
+    }
+  }
+  
+  if (options) {
+    cmd += ` ${options}`;
+  }
+  
+  cmd += ` --concurrency 10 --timeout 10`;
+  
+  cmdPreview.textContent = cmd;
+  cmdLengthSpan.textContent = cmd.length + ' chars';
+}
+
+// Event listeners
+[u_target, u_method, u_payloads, u_place, u_body, u_headers, u_options].forEach(el => {
+  if (el) el.addEventListener('input', updateCommand);
+});
+u_place.addEventListener('change', () => {
+  togglePositionFields();
+  updateCommand();
+});
+
+// Copy command
+copyBtn.addEventListener('click', async () => {
+  const cmd = cmdPreview.textContent;
+  if (cmd && !cmd.startsWith('⚠️')) {
+    safeCopy(cmd, 'Command copied!');
+  } else {
+    toast('⚠️ No valid command to copy');
+  }
+});
+
+// Reset form
+resetBtn.addEventListener('click', () => {
+  u_target.value = '';
+  u_method.value = 'GET';
+  u_payloads.value = '';
+  u_place.value = 'url';
+  u_body.value = '';
+  u_headers.value = '';
+  u_options.value = '';
+  togglePositionFields();
+  updateCommand();
+  toast('🔄 Form reset');
+});
+
+// Download command
+downloadBtn.addEventListener('click', () => {
+  const cmd = cmdPreview.textContent;
+  if (!cmd || cmd.startsWith('⚠️')) {
+    toast('⚠️ No valid command to download');
+    return;
+  }
+  const blob = new Blob([cmd], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'fuzz-command.txt';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  toast('📄 Command saved as fuzz-command.txt');
+});
+
+// Keyboard shortcut Ctrl/Cmd + C
+window.addEventListener('keydown', async (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
+    const active = document.activeElement;
+    if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.tagName === 'SELECT')) return;
+    e.preventDefault();
+    const cmd = cmdPreview.textContent;
+    if (cmd && !cmd.startsWith('⚠️')) safeCopy(cmd, 'Command copied!');
+  }
+});
+
+// Navbar scroll effect
+window.addEventListener('scroll', () => {
+  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 20);
+});
+
+// Mobile menu toggle
+const menuBtn = document.getElementById('menuBtn');
+const navLinksEl = document.getElementById('navLinks');
+if (menuBtn) {
+  menuBtn.addEventListener('click', () => navLinksEl.classList.toggle('open'));
+}
+document.querySelectorAll('.nav-links a').forEach(link => {
+  link.addEventListener('click', () => navLinksEl.classList.remove('open'));
+});
+
+// Live time
+function updateLiveTime() {
+  const el = document.getElementById('liveTime');
+  if (el) {
+    el.textContent = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+  }
+}
+updateLiveTime();
+setInterval(updateLiveTime, 1000);
+
+// Video autoplay
+const video = document.getElementById('bgVideo');
+if (video) {
+  video.play().catch(() => {
+    document.body.addEventListener('click', () => video.play(), { once: true });
+  });
+}
+
+// Initialize
+togglePositionFields();
+updateCommand();
+</script>
+</body>
+</html>

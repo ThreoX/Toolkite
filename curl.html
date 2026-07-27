@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>Security Testing Toolkit | Curl Commands</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #ffffff;
+    color: #1e293b;
+    line-height: 1.5;
+    overflow-x: hidden;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  /* VIDEO BACKGROUND */
+  .video-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -2;
+    overflow: hidden;
+  }
+  .video-background video {
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    opacity: 40%;
+    transform: translate(-50%, -50%);
+    object-fit: cover;
+  }
+  
+  .video-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    z-index: -1;
+  }
+
+  /* Theme Colors */
+  :root {
+    --white: #ffffff;
+    --offwhite: #f9fafb;
+    --gray-50: #f8fafc;
+    --gray-100: #f1f5f9;
+    --gray-200: #e2e8f0;
+    --gray-300: #cbd5e1;
+    --gray-600: #475569;
+    --gray-700: #334155;
+    --gray-800: #1e293b;
+    --gray-900: #0f172a;
+    --green: #10b981;
+    --green-dark: #059669;
+    --blue: #3b82f6;
+    --blue-dark: #2563eb;
+    --purple: #8b5cf6;
+    --orange: #f59e0b;
+    --red: #ef4444;
+    --grad: linear-gradient(135deg, #10b981, #3b82f6);
+    --grad-purple: linear-gradient(135deg, #8b5cf6, #3b82f6);
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
+    --border-light: 1px solid rgba(226, 232, 240, 0.5);
+  }
+
+  /* Dark Mode */
+  body.dark-mode {
+    --white: #1a1a1a;
+    --offwhite: #2d2d2d;
+    --gray-50: #252525;
+    --gray-100: #2d2d2d;
+    --gray-200: #3d3d3d;
+    --gray-300: #4a4a4a;
+    --gray-600: #a0a0a0;
+    --gray-700: #b0b0b0;
+    --gray-800: #c0c0c0;
+    --gray-900: #e0e0e0;
+    --border-light: 1px solid rgba(61, 61, 61, 0.8);
+  }
+
+  body.dark-mode {
+    background: #0f0f0f;
+  }
+
+  body.dark-mode .category,
+  body.dark-mode .tool-item,
+  body.dark-mode .domain-input,
+  body.dark-mode .result-box,
+  body.dark-mode .command-box,
+  body.dark-mode .user-profile-card,
+  body.dark-mode .navbar.scrolled {
+    background: rgba(26, 26, 26, 0.95);
+  }
+
+  body.dark-mode .tool-title,
+  body.dark-mode .category h2 {
+    color: #e0e0e0;
+  }
+
+  body.dark-mode .vuln-info {
+    background: rgba(239, 68, 68, 0.1);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: rgba(241, 245, 249, 0.5);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--green);
+    border-radius: 10px;
+  }
+
+  /* Navbar */
+  .navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    padding: 0 5%;
+    transition: all 0.3s ease;
+    background: transparent;
+  }
+  .navbar.scrolled {
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(12px);
+    border-bottom: var(--border-light);
+    box-shadow: var(--shadow-sm);
+  }
+  body.dark-mode .navbar.scrolled {
+    background: rgba(26, 26, 26, 0.96);
+  }
+  .nav-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 70px;
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+  }
+  .logo-mark-img {
+    height: 40px;
+    width: auto;
+    object-fit: contain;
+  }
+  .logo-text-img {
+    height: 32px;
+    width: auto;
+    object-fit: contain;
+  }
+  .nav-links {
+    display: flex;
+    list-style: none;
+    gap: 2rem;
+    align-items: center;
+  }
+  .nav-links a {
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-700);
+    transition: color 0.2s;
+  }
+  .nav-links a:hover {
+    color: var(--green);
+  }
+
+  .theme-toggle {
+    background: rgba(16, 185, 129, 0.12);
+    border: 1px solid rgba(16, 185, 129, 0.25);
+    border-radius: 40px;
+    padding: 0.3rem 0.8rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+  }
+  .theme-toggle:hover {
+    background: rgba(16, 185, 129, 0.2);
+  }
+  .theme-toggle i {
+    color: var(--green);
+    font-size: 0.9rem;
+  }
+  .theme-toggle span {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--green-dark);
+  }
+  body.dark-mode .theme-toggle span {
+    color: var(--green);
+  }
+
+  .menu-btn {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+  }
+  .menu-btn span {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background: var(--gray-800);
+    margin: 5px 0;
+    border-radius: 2px;
+  }
+
+  .main-container {
+    padding-top: 90px;
+    min-height: 100vh;
+  }
+  .container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 5% 40px;
+  }
+
+  .header-section {
+    text-align: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: var(--border-light);
+  }
+  .logo-icon-large {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 1rem;
+  }
+  .logo-icon-large img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+  h1 {
+    font-size: 2.5rem;
+    background: var(--grad);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: 10px;
+  }
+  .subtitle {
+    color: var(--gray-600);
+    font-size: 1rem;
+  }
+
+  .domain-input {
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(8px);
+    border: var(--border-light);
+    border-radius: 20px;
+    padding: 25px;
+    margin-bottom: 30px;
+  }
+  .input-group {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+  }
+  .input-group input {
+    flex: 1;
+    padding: 14px 18px;
+    border-radius: 12px;
+    border: var(--border-light);
+    background: rgba(255, 255, 255, 0.9);
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    transition: all 0.2s;
+  }
+  .input-group input:focus {
+    outline: none;
+    border-color: var(--green);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+  }
+  body.dark-mode .input-group input {
+    background: rgba(26, 26, 26, 0.9);
+    color: #e0e0e0;
+  }
+
+  .btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 40px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .btn-primary {
+    background: var(--grad);
+    color: white;
+  }
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+  }
+  .btn-toolkit {
+    background: var(--grad-purple);
+    color: white;
+  }
+  .btn-toolkit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(139, 92, 246, 0.3);
+  }
+  .btn-success {
+    background: var(--green);
+    color: white;
+  }
+  .btn-success:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+  }
+
+  .bulk-actions {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+  }
+
+  .category {
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(8px);
+    border: var(--border-light);
+    border-radius: 24px;
+    padding: 25px;
+    margin-bottom: 30px;
+  }
+  .category h2 {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: var(--border-light);
+    font-size: 1.5rem;
+  }
+  .category h2 i {
+    color: var(--green);
+  }
+
+  .toolkit-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(600px, 1fr));
+    gap: 20px;
+  }
+  .tool-item {
+    background: rgba(255, 255, 255, 0.95);
+    border: var(--border-light);
+    border-radius: 16px;
+    padding: 20px;
+    transition: all 0.25s ease;
+  }
+  .tool-item:hover {
+    border-color: var(--green);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+  }
+  .tool-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .tool-title {
+    font-weight: 700;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .tool-title i {
+    color: var(--green);
+  }
+  .tool-actions {
+    display: flex;
+    gap: 10px;
+  }
+  .action-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 40px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .run-btn {
+    background: var(--grad-purple);
+    color: white;
+  }
+  .run-btn:hover {
+    transform: scale(1.02);
+  }
+  .copy-btn {
+    background: var(--grad);
+    color: white;
+  }
+  .copy-btn:hover {
+    transform: scale(1.02);
+  }
+  .copy-btn.copied {
+    background: var(--green);
+  }
+  .command-box {
+    font-family: 'Courier New', 'SF Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--gray-600);
+    background: rgba(0, 0, 0, 0.05);
+    padding: 12px;
+    border-radius: 10px;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+    margin-bottom: 12px;
+    border-left: 3px solid var(--green);
+  }
+  body.dark-mode .command-box {
+    background: rgba(255, 255, 255, 0.05);
+  }
+  .vuln-info {
+    background: rgba(239, 68, 68, 0.08);
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    border-left: 3px solid var(--red);
+  }
+  .result-box {
+    background: rgba(0, 0, 0, 0.04);
+    border-radius: 10px;
+    padding: 15px;
+    margin-top: 12px;
+    max-height: 250px;
+    overflow-y: auto;
+    display: none;
+  }
+  body.dark-mode .result-box {
+    background: rgba(255, 255, 255, 0.03);
+  }
+  .result-box pre {
+    margin: 0;
+    font-family: 'Courier New', monospace;
+    font-size: 0.7rem;
+    white-space: pre-wrap;
+  }
+  .loading {
+    color: var(--gray-600);
+    font-style: italic;
+  }
+  .error {
+    color: var(--red);
+  }
+  .success {
+    color: var(--green);
+  }
+
+  .user-profile-card {
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(8px);
+    border: var(--border-light);
+    border-radius: 20px;
+    padding: 20px;
+    margin-bottom: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  .profile-info h3 {
+    font-size: 0.9rem;
+    color: var(--gray-600);
+    margin-bottom: 8px;
+  }
+  .profile-info p {
+    margin: 5px 0;
+    font-size: 0.9rem;
+  }
+  .logout-btn {
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: var(--red);
+    padding: 10px 24px;
+    border-radius: 40px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+  .logout-btn:hover {
+    background: var(--red);
+    color: white;
+  }
+
+  .notification {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: var(--green);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 40px;
+    font-weight: 600;
+    box-shadow: var(--shadow-lg);
+    display: none;
+    z-index: 1000;
+    animation: slideIn 0.3s ease;
+  }
+  @keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+
+  footer {
+    text-align: center;
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: var(--border-light);
+    color: var(--gray-600);
+    font-size: 0.8rem;
+  }
+
+  @media (max-width: 768px) {
+    .toolkit-grid { grid-template-columns: 1fr; }
+    .input-group { flex-direction: column; }
+    .nav-links { display: none; position: fixed; top: 70px; left: 0; right: 0; background: white; flex-direction: column; padding: 2rem; gap: 1.5rem; box-shadow: var(--shadow-lg); z-index: 999; }
+    .nav-links.open { display: flex; }
+    .menu-btn { display: block; }
+    h1 { font-size: 1.8rem; }
+    .bulk-actions { flex-direction: column; }
+    .btn { justify-content: center; }
+  }
+</style>
+</head>
+<body>
+
+<div class="video-background">
+  <video autoplay muted loop playsinline id="bgVideo">
+    <source src="background.mp4" type="video/mp4">
+  </video>
+</div>
+<div class="video-overlay"></div>
+
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <a href="#" class="logo">
+      <img src="solo_logo.jpeg" alt="Threox Icon" class="logo-mark-img" onerror="this.style.display='none';">
+      <img src="company_text.jpeg" alt="Threox" class="logo-text-img" onerror="this.style.display='none';">
+    </a>
+    <button class="menu-btn" id="menuBtn"><span></span><span></span><span></span></button>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#" class="active">Curl Toolkit</a></li>
+      <li><a href="#">Scanner</a></li>
+      <li><a href="#">Reports</a></li>
+      <li>
+        <div class="theme-toggle" id="themeToggle">
+          <i class="fas fa-moon" id="themeIcon"></i>
+          <span id="themeText">Dark Mode</span>
+        </div>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+<div class="main-container">
+  <div class="container">
+    <div class="header-section">
+      <div class="logo-icon-large">
+        <img src="solo_logo.jpeg" alt="Security Toolkit" onerror="this.style.display='none';">
+      </div>
+      <h1>Curl Security Testing Toolkit</h1>
+      <div class="subtitle">12 essential curl commands for comprehensive security assessment</div>
+    </div>
+
+    <div class="user-profile-card" id="userProfileCard">
+      <div class="profile-info">
+        <h3><i class="fas fa-terminal"></i> Security Professional</h3>
+        <div id="userProfile">Welcome! Enter a domain to generate curl commands.</div>
+      </div>
+      <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    </div>
+
+    <div class="domain-input">
+      <div class="input-group">
+        <i class="fas fa-globe" style="color: var(--green);"></i>
+        <input type="text" id="domainInput" placeholder="Enter target domain (e.g., example.com)" value="target.com">
+        <button class="btn btn-primary" id="updateDomain"><i class="fas fa-sync-alt"></i> Generate Commands</button>
+      </div>
+      <p style="font-size: 0.75rem; color: var(--gray-600); margin-top: 12px;">
+        <i class="fas fa-info-circle"></i> Replace {domain} with your target in each command
+      </p>
+    </div>
+
+    <div class="bulk-actions">
+      <button class="btn btn-toolkit" id="copyAllCommands"><i class="fas fa-copy"></i> Copy All 12 Commands</button>
+      <button class="btn btn-success" id="runAllChecks"><i class="fas fa-play"></i> Simulate All Checks</button>
+    </div>
+
+    <div class="category">
+      <h2><i class="fas fa-terminal"></i> 12 Essential Curl Commands for Security Testing</h2>
+      <div class="toolkit-grid" id="toolkitContainer"></div>
+    </div>
+
+    <footer>
+      <i class="fas fa-shield-alt"></i> Threox Security • Enterprise VAPT Specialists • Zero False Positive SLA
+    </footer>
+  </div>
+</div>
+
+<div class="notification" id="notification">Command copied to clipboard!</div>
+
+<script>
+// Dark Mode Toggle
+const themeToggle = document.getElementById('themeToggle');
+const themeIcon = document.getElementById('themeIcon');
+const themeText = document.getElementById('themeText');
+
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme === 'dark') {
+  document.body.classList.add('dark-mode');
+  themeIcon.className = 'fas fa-sun';
+  themeText.textContent = 'Light Mode';
+} else {
+  themeIcon.className = 'fas fa-moon';
+  themeText.textContent = 'Dark Mode';
+}
+
+themeToggle.addEventListener('click', () => {
+  document.body.classList.toggle('dark-mode');
+  const isDark = document.body.classList.contains('dark-mode');
+  if (isDark) {
+    localStorage.setItem('theme', 'dark');
+    themeIcon.className = 'fas fa-sun';
+    themeText.textContent = 'Light Mode';
+  } else {
+    localStorage.setItem('theme', 'light');
+    themeIcon.className = 'fas fa-moon';
+    themeText.textContent = 'Dark Mode';
+  }
+});
+
+// Navbar Scroll Effect
+window.addEventListener('scroll', () => {
+  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 20);
+});
+
+// Mobile Menu
+const menuBtn = document.getElementById('menuBtn');
+const navLinksEl = document.getElementById('navLinks');
+if (menuBtn) {
+  menuBtn.addEventListener('click', () => navLinksEl.classList.toggle('open'));
+}
+document.querySelectorAll('.nav-links a').forEach(link => link.addEventListener('click', () => navLinksEl.classList.remove('open')));
+
+// Firebase Auth
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCgC4bUGN2XajhVvHHyYf-qxzgvy-nmyY8",
+  authDomain: "admin-6df50.firebaseapp.com",
+  projectId: "admin-6df50",
+  storageBucket: "admin-6df50.firebasestorage.app",
+  messagingSenderId: "273989159024",
+  appId: "1:273989159024:web:d584cc68ef633cab5b8cb5"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+function getCookie(name) {
+  const decodedCookie = decodeURIComponent(document.cookie);
+  const cookies = decodedCookie.split(";");
+  for (let cookie of cookies) {
+    cookie = cookie.trim();
+    if (cookie.startsWith(name + "=")) {
+      return cookie.substring(name.length + 1);
+    }
+  }
+  return "";
+}
+
+function deleteCookie(name) {
+  document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+}
+
+const uid = getCookie("user");
+if (!uid) {
+  window.location.href = "login.html";
+}
+
+async function loadProfile() {
+  try {
+    const docRef = doc(db, "users", uid);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+      document.getElementById("userProfile").innerHTML = `
+        <p><i class="fas fa-user"></i> <strong>${data.name || 'Security Professional'}</strong> | <i class="fas fa-envelope"></i> ${data.email || ''}</p>
+        <p><i class="fas fa-phone"></i> ${data.mobile || 'Ready for assessment'}</p>
+      `;
+    } else {
+      document.getElementById("userProfile").innerHTML = "Welcome! Enter a domain to generate curl commands.";
+    }
+  } catch (err) {
+    console.error(err);
+    document.getElementById("userProfile").innerHTML = "Welcome! Enter a domain to generate curl commands.";
+  }
+}
+loadProfile();
+
+document.getElementById("logoutBtn").addEventListener("click", async () => {
+  try {
+    await signOut(auth);
+  } catch (err) {
+    console.warn("SignOut error:", err);
+  } finally {
+    deleteCookie("user");
+    window.location.href = "login.html";
+  }
+});
+
+// ==================== 12 CURL COMMANDS ====================
+const toolkit = [
+  { 
+    title: "1. Check HTTP Methods", 
+    icon: "fas fa-plug", 
+    command: (domain) => `curl -X OPTIONS -i http://${domain}`,
+    description: "Check which HTTP methods are allowed by the server",
+    vuln: `🔎 If response includes methods like PUT, DELETE, TRACE — server allows unsafe HTTP methods.<br>❌ Risk: Overwriting data, Cross Site Tracing.`
+  },
+  { 
+    title: "2. Check Verbose Server Info", 
+    icon: "fas fa-server", 
+    command: (domain) => `curl -v http://${domain}`,
+    description: "Get detailed server headers and version information",
+    vuln: `🔎 Look for: Server, X-Powered-By, Set-Cookie headers.<br>❌ Risk: Technology stack exposure, missing Secure/HttpOnly flags.`
+  },
+  { 
+    title: "3. Check Directory Listing", 
+    icon: "fas fa-folder-open", 
+    command: (domain) => `curl -l http://${domain}/assets/`,
+    description: "Test if directory listing is enabled",
+    vuln: `🔎 If you receive a list of files — directory listing is enabled.<br>❌ Risk: Attacker can access sensitive files unintentionally exposed.`
+  },
+  { 
+    title: "4. Check Sensitive Files", 
+    icon: "fas fa-file-alt", 
+    command: (domain) => `curl -s -o - http://${domain}/.git/config\ncurl -s -o - http://${domain}/.env\ncurl -s -o - http://${domain}/config.php\ncurl -s -o - http://${domain}/backup.zip\ncurl -s -o - http://${domain}/robots.txt`,
+    description: "Check for exposed sensitive configuration files",
+    vuln: `🔎 If you see API keys, DB credentials, or internal config info, they are publicly accessible.<br>❌ Risk: Full system compromise possible.`
+  },
+  { 
+    title: "5. Check SSL/TLS Info", 
+    icon: "fas fa-lock", 
+    command: (domain) => `openssl s_client -connect ${domain}:443`,
+    description: "Analyze SSL/TLS certificate and cipher configuration",
+    vuln: `🔎 Look for SSLv3, TLS 1.0, self-signed certificates, or weak ciphers.<br>❌ Risk: Outdated encryption can be easily broken.`
+  },
+  { 
+    title: "6. Check for Open Redirect", 
+    icon: "fas fa-external-link-alt", 
+    command: (domain) => `curl -I http://${domain}/redirect?url=http://evil.com`,
+    description: "Test for open redirect vulnerabilities",
+    vuln: `🔎 If Location header points to the external URL — open redirect exists.<br>❌ Risk: Used for phishing attacks or stealing sessions.`
+  },
+  { 
+    title: "7. Check Security Headers", 
+    icon: "fas fa-shield-alt", 
+    command: (domain) => `curl -I http://${domain} | grep -iE "(x-frame-options|x-content-type-options|x-xss-protection|strict-transport-security)"`,
+    description: "Verify security headers are properly configured",
+    vuln: `🔎 Missing security headers indicate potential vulnerabilities.<br>❌ Risk: Clickjacking, MIME sniffing, XSS attacks.`
+  },
+  { 
+    title: "8. Check CORS Configuration", 
+    icon: "fas fa-crosshairs", 
+    command: (domain) => `curl -H "Origin: http://evil.com" -I http://${domain}`,
+    description: "Test Cross-Origin Resource Sharing configuration",
+    vuln: `🔎 Look for Access-Control-Allow-Origin: * or evil.com in response.<br>❌ Risk: Cross-origin data theft if misconfigured.`
+  },
+  { 
+    title: "9. Check HTTP to HTTPS Redirect", 
+    icon: "fas fa-redo-alt", 
+    command: (domain) => `curl -I http://${domain}`,
+    description: "Verify proper redirect from HTTP to HTTPS",
+    vuln: `🔎 Check if HTTP requests redirect to HTTPS.<br>❌ Risk: Data transmitted in clear text if no redirect.`
+  },
+  { 
+    title: "10. Check API Endpoints", 
+    icon: "fas fa-code", 
+    command: (domain) => `curl -X GET http://${domain}/api/v1/users\ncurl -X POST http://${domain}/api/v1/users\ncurl -X PUT http://${domain}/api/v1/users/1`,
+    description: "Test common API endpoints for exposure",
+    vuln: `🔎 Test common API endpoints for information disclosure.<br>❌ Risk: Unauthorized data access, IDOR vulnerabilities.`
+  },
+  { 
+    title: "11. Check File Upload Vulnerabilities", 
+    icon: "fas fa-upload", 
+    command: (domain) => `echo "<?php phpinfo(); ?>" | curl -X POST -F "file=@-" http://${domain}/upload`,
+    description: "Test file upload security controls",
+    vuln: `🔎 Attempt to upload a PHP file or check allowed extensions.<br>❌ Risk: Remote code execution if uploads not properly validated.`
+  },
+  { 
+    title: "12. Check SSRF Vulnerabilities", 
+    icon: "fas fa-network-wired", 
+    command: (domain) => `curl -X POST http://${domain}/fetch -d 'url=http://169.254.169.254/latest/meta-data/'`,
+    description: "Test for Server-Side Request Forgery",
+    vuln: `🔎 Test if server can make requests to internal endpoints.<br>❌ Risk: Access to internal services, metadata exposure.`
+  }
+];
+
+let currentDomain = 'target.com';
+
+function initializeToolkit() {
+  const container = document.getElementById('toolkitContainer');
+  container.innerHTML = '';
+  toolkit.forEach((tool, index) => {
+    const command = tool.command(currentDomain);
+    const toolElement = document.createElement('div');
+    toolElement.className = 'tool-item';
+    toolElement.innerHTML = `
+      <div class="tool-header">
+        <div class="tool-title"><i class="${tool.icon}"></i> ${tool.title}</div>
+        <div class="tool-actions">
+          <button class="action-btn run-btn" data-index="${index}"><i class="fas fa-play"></i> Simulate</button>
+          <button class="action-btn copy-btn" data-command="${command.replace(/"/g, '&quot;')}"><i class="fas fa-copy"></i> Copy</button>
+        </div>
+      </div>
+      <div class="command-box">${escapeHtml(command)}</div>
+      <div class="vuln-info">
+        <strong><i class="fas fa-info-circle"></i> ${tool.description}</strong><br><br>
+        ${tool.vuln}
+      </div>
+      <div class="result-box" id="result-${index}">
+        <pre class="loading"><i class="fas fa-terminal"></i> Click "Simulate" to see example output...</pre>
+      </div>
+    `;
+    container.appendChild(toolElement);
+  });
+}
+
+function escapeHtml(str) {
+  return str.replace(/[&<>]/g, function(m) {
+    if (m === '&') return '&amp;';
+    if (m === '<') return '&lt;';
+    if (m === '>') return '&gt;';
+    return m;
+  }).replace(/\n/g, '<br>');
+}
+
+function showNotification(message) {
+  const notification = document.getElementById('notification');
+  notification.textContent = message;
+  notification.style.display = 'block';
+  setTimeout(() => {
+    notification.style.display = 'none';
+  }, 2000);
+}
+
+function copyToClipboard(text) {
+  navigator.clipboard.writeText(text).then(() => {
+    showNotification('Curl command copied to clipboard!');
+  }).catch(() => {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    document.body.appendChild(textArea);
+    textArea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textArea);
+    showNotification('Curl command copied to clipboard!');
+  });
+}
+
+function simulateCommandExecution(command, resultElement, toolIndex) {
+  resultElement.innerHTML = '<pre class="loading"><i class="fas fa-spinner fa-spin"></i> Simulating curl execution...</pre>';
+  resultElement.style.display = 'block';
+  
+  setTimeout(() => {
+    const simulatedResults = [
+      `HTTP/1.1 200 OK\nAllow: OPTIONS, GET, HEAD, POST, PUT, DELETE, TRACE\nServer: Apache/2.4.41\n\n🔍 Unsafe methods detected: PUT, DELETE, TRACE\n\n💡 Recommendation: Disable unnecessary HTTP methods`,
+      `* Connected to ${currentDomain} port 80\n< Server: nginx/1.18.0\n< X-Powered-By: PHP/7.4.3\n< Set-Cookie: session=abc123; Path=/\n\n🔍 Technology stack exposed: nginx, PHP 7.4.3\n\n💡 Recommendation: Hide server version information`,
+      `<!DOCTYPE html>\n<html><head><title>Index of /assets/</title></head>\n<body><h1>Index of /assets/</h1>\n<ul>\n<li><a href="config.php">config.php</a></li>\n<li><a href="backup.zip">backup.zip</a></li>\n<li><a href="database.sql">database.sql</a></li>\n</ul>\n\n🔍 Directory listing enabled - security risk!\n\n💡 Recommendation: Disable directory listing in web server configuration`,
+      `.git/config: 404 Not Found\n.env: 200 OK - File exposed!\nDB_PASSWORD=secret123\nAPI_KEY=abc123xyz\n\n🔍 CRITICAL: Sensitive files exposed!\n\n💡 Recommendation: Restrict access to .env, .git, config files`,
+      `CONNECTED(00000003)\nSSL-Session:\n    Protocol  : TLSv1.2\n    Cipher    : AES_256_GCM_SHA384\n    Key-Arg   : None\n\n✅ TLS configuration is strong\n\n💡 Recommendation: Ensure TLS 1.2+ is enforced`,
+      `HTTP/1.1 302 Found\nLocation: http://evil.com\n\n🔍 Open redirect vulnerability detected!\n\n💡 Recommendation: Validate and whitelist redirect URLs`,
+      `HTTP/1.1 200 OK\nX-Frame-Options: DENY\nX-Content-Type-Options: nosniff\nStrict-Transport-Security: max-age=31536000\nX-XSS-Protection: 1; mode=block\n\n✅ Security headers properly configured\n\n💡 Recommendation: Maintain current security headers`,
+      `HTTP/1.1 200 OK\nAccess-Control-Allow-Origin: *\nAccess-Control-Allow-Methods: GET, POST, PUT\n\n🔍 CORS misconfiguration - allows all origins\n\n💡 Recommendation: Restrict CORS to trusted domains only`,
+      `HTTP/1.1 301 Moved Permanently\nLocation: https://${currentDomain}/\n\n✅ Proper HTTP to HTTPS redirect configured\n\n💡 Recommendation: Ensure HSTS is also enabled`,
+      `GET /api/v1/users: 401 Unauthorized\nPOST /api/v1/users: 401 Unauthorized\nPUT /api/v1/users/1: 403 Forbidden\n\n✅ API endpoints properly protected\n\n💡 Recommendation: Implement rate limiting and input validation`,
+      `HTTP/1.1 415 Unsupported Media Type\n{"error": "File type not allowed"}\n\n✅ File upload validation working correctly\n\n💡 Recommendation: Also implement file size limits and scanning`,
+      `HTTP/1.1 403 Forbidden\n{"error": "Internal requests not allowed"}\n\n✅ SSRF protection enabled\n\n💡 Recommendation: Use allowlists for external requests`
+    ];
+    const randomResult = simulatedResults[toolIndex % simulatedResults.length];
+    const isError = randomResult.includes('🔍') && !randomResult.includes('✅');
+    const resultClass = isError ? 'error' : 'success';
+    resultElement.innerHTML = `<pre class="${resultClass}">${escapeHtml(randomResult)}</pre>`;
+  }, 1200);
+}
+
+// Event Listeners
+document.addEventListener('DOMContentLoaded', () => {
+  initializeToolkit();
+
+  document.getElementById('updateDomain').addEventListener('click', () => {
+    const newDomain = document.getElementById('domainInput').value.trim();
+    if (newDomain) {
+      currentDomain = newDomain;
+      initializeToolkit();
+      showNotification(`Domain updated to: ${newDomain} — All curl commands regenerated`);
+    }
+  });
+
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('.copy-btn')) {
+      const btn = e.target.closest('.copy-btn');
+      const command = btn.getAttribute('data-command');
+      copyToClipboard(command);
+      btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.innerHTML = '<i class="fas fa-copy"></i> Copy';
+        btn.classList.remove('copied');
+      }, 1500);
+    }
+
+    if (e.target.closest('.run-btn')) {
+      const btn = e.target.closest('.run-btn');
+      const index = parseInt(btn.getAttribute('data-index'));
+      const command = toolkit[index].command(currentDomain);
+      const resultElement = document.getElementById(`result-${index}`);
+      simulateCommandExecution(command, resultElement, index);
+    }
+  });
+
+  document.getElementById('copyAllCommands').addEventListener('click', () => {
+    const allCommands = toolkit.map(tool => tool.command(currentDomain)).join('\n\n');
+    copyToClipboard(allCommands);
+    showNotification('All 12 curl commands copied to clipboard!');
+  });
+
+  document.getElementById('runAllChecks').addEventListener('click', () => {
+    toolkit.forEach((tool, index) => {
+      const command = tool.command(currentDomain);
+      const resultElement = document.getElementById(`result-${index}`);
+      simulateCommandExecution(command, resultElement, index);
+    });
+    showNotification('Running all 12 security checks simulation...');
+  });
+
+  document.getElementById('domainInput').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') document.getElementById('updateDomain').click();
+  });
+});
+
+// Video autoplay
+const video = document.getElementById('bgVideo');
+if (video) {
+  video.play().catch(() => {
+    document.body.addEventListener('click', () => video.play(), { once: true });
+  });
+}
+</script>
+</body>
+</html>

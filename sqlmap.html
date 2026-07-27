@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>CyberFriend | SQLMap Command Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', sans-serif; background: #ffffff; color: #1e293b; line-height: 1.5; overflow-x: hidden; font-size: 14px; }
+  .video-background { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; overflow: hidden; }
+  .video-background video { min-width: 100%; min-height: 100%; width: auto; height: auto; position: absolute; top: 50%; left: 50%; opacity: 0.35; transform: translate(-50%, -50%); object-fit: cover; }
+  .video-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: transparent; z-index: -1; }
+  :root { --white: #ffffff; --offwhite: #f9fafb; --gray-50: #f8fafc; --gray-100: #f1f5f9; --gray-200: #e2e8f0; --gray-300: #cbd5e1; --gray-600: #475569; --gray-700: #334155; --gray-800: #1e293b; --gray-900: #0f172a; --green: #10b981; --green-dark: #059669; --blue: #3b82f6; --blue-dark: #2563eb; --grad: linear-gradient(135deg, #10b981, #3b82f6); --grad-hover: linear-gradient(135deg, #059669, #2563eb); --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05); --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03); --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025); --border-light: 1px solid rgba(226, 232, 240, 0.5); }
+  h1, h2, h3, h4, h5, h6 { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; letter-spacing: -0.02em; }
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: rgba(241, 245, 249, 0.5); }
+  ::-webkit-scrollbar-thumb { background: var(--green); border-radius: 10px; }
+  
+  .navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; padding: 0 5%; transition: all 0.3s ease; background: transparent; }
+  .navbar.scrolled { background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(12px); border-bottom: var(--border-light); box-shadow: var(--shadow-sm); }
+  .nav-container { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 60px; }
+  .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+  .nav-links { display: flex; list-style: none; gap: 1.8rem; align-items: center; }
+  .nav-links a { text-decoration: none; font-size: 0.85rem; font-weight: 500; color: var(--gray-700); transition: color 0.2s; }
+  .nav-links a:hover, .nav-links a.active { color: var(--green); }
+  .status-badge { background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.25); padding: 0.2rem 0.9rem; border-radius: 40px; font-size: 0.7rem; font-weight: 600; color: var(--green-dark); display: flex; align-items: center; gap: 6px; }
+  .status-dot { width: 7px; height: 7px; background: var(--green); border-radius: 50%; animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(1.2); } }
+  .menu-btn { display: none; background: none; border: none; cursor: pointer; padding: 8px; }
+  .menu-btn span { display: block; width: 22px; height: 2px; background: var(--gray-800); margin: 5px 0; border-radius: 2px; }
+  
+  .app-container { display: flex; padding-top: 60px; min-height: 100vh; }
+  
+  /* Sidebar */
+  .sidebar { width: 240px; background: transparent; backdrop-filter: blur(1px); border-right: var(--border-light); height: calc(100vh - 60px); position: sticky; top: 60px; overflow-y: auto; flex-shrink: 0; }
+  .logo-area { padding: 1.2rem 1rem 1rem; border-bottom: var(--border-light); text-align: center; }
+  .logo-icon-large { width: 50px; height: 50px; margin: 0 auto 0.6rem; }
+  .logo-icon-large img { width: 100%; height: 100%; object-fit: contain; }
+  .logo-title-img { height: 24px; width: auto; object-fit: contain; margin-bottom: 0.3rem; }
+  .logo-badge { font-size: 0.55rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--green); background: rgba(16, 185, 129, 0.1); padding: 0.12rem 0.6rem; border-radius: 20px; display: inline-block; }
+  .sidebar-nav { padding: 0.8rem 0; }
+  .nav-section-title { padding: 0.4rem 1rem; font-size: 0.6rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--gray-600); display: flex; align-items: center; gap: 6px; }
+  .sidebar-footer { padding: 0.8rem 1rem; border-top: var(--border-light); color: var(--gray-600); font-size: 0.6rem; text-align: center; }
+  
+  .main-content { flex: 1; overflow-y: auto; height: calc(100vh - 60px); }
+  .scroll-content { padding: 1.2rem; }
+  
+  /* SQLMap Builder Styles */
+  .builder-container { max-width: 1100px; margin: 0 auto; }
+  .hero-card { background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(8px); border-radius: 16px; padding: 1rem; margin-bottom: 1rem; border: var(--border-light); text-align: center; }
+  .warning-card { background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(239, 68, 68, 0.05)); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 10px; padding: 0.6rem 1rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 10px; }
+  .warning-card i { color: #f59e0b; font-size: 14px; }
+  .warning-card span { font-size: 11px; color: #b45309; }
+  
+  .two-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media (max-width: 900px) { .two-columns { grid-template-columns: 1fr; } .sidebar { display: none; } .menu-btn { display: block; } .nav-links { display: none; position: fixed; top: 60px; left: 0; right: 0; background: white; flex-direction: column; padding: 1rem; gap: 0.8rem; box-shadow: var(--shadow-lg); z-index: 999; } .nav-links.open { display: flex; } }
+  
+  .panel { background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(8px); border-radius: 16px; padding: 1rem; border: var(--border-light); }
+  .field { margin-bottom: 12px; }
+  .field label { display: block; font-size: 10px; font-weight: 600; color: var(--gray-600); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.3px; }
+  .field input, .field select, .field textarea { width: 100%; padding: 7px 10px; border-radius: 8px; border: 1px solid var(--gray-200); background: white; font-family: 'Inter', monospace; font-size: 12px; transition: all 0.2s; }
+  .field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--green); box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1); }
+  .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  
+  .cmd-preview { background: var(--gray-50); border-radius: 10px; padding: 10px 12px; font-family: 'Courier New', monospace; font-size: 11px; color: var(--gray-800); white-space: pre-wrap; word-break: break-all; border: 1px solid var(--gray-200); min-height: 80px; max-height: 120px; overflow-y: auto; }
+  
+  .actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+  .btn { padding: 5px 12px; border-radius: 40px; font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; font-family: 'Inter', sans-serif; display: inline-flex; align-items: center; gap: 5px; }
+  .btn-primary { background: var(--grad); color: white; }
+  .btn-primary:hover { transform: scale(0.97); background: var(--grad-hover); }
+  .btn-secondary { background: white; border: 1px solid var(--gray-200); color: var(--gray-700); }
+  .btn-secondary:hover { border-color: var(--green); color: var(--green); background: rgba(16, 185, 129, 0.05); }
+  
+  .hint-text { font-size: 9px; color: var(--gray-500); margin-top: 3px; display: flex; align-items: center; gap: 4px; }
+  .divider { margin: 12px 0; border-top: 1px solid var(--gray-200); }
+  
+  .badge { display: inline-block; background: rgba(16, 185, 129, 0.1); padding: 2px 8px; border-radius: 12px; font-size: 9px; font-weight: 500; color: var(--green-dark); }
+  
+  .footer-note { margin-top: 1rem; padding-top: 0.8rem; border-top: var(--border-light); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; color: var(--gray-600); font-size: 0.65rem; }
+  
+  .toast { position: fixed; bottom: 20px; right: 20px; background: var(--green-dark); color: white; padding: 6px 14px; border-radius: 40px; font-size: 11px; font-weight: 500; z-index: 9999; animation: slideIn 0.3s ease; }
+  @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+  
+  .code-block { background: var(--gray-50); border-radius: 8px; padding: 8px; font-size: 10px; font-family: monospace; color: var(--gray-600); margin-top: 8px; }
+</style>
+</head>
+<body>
+
+<div class="video-background"><video autoplay muted loop playsinline id="bgVideo"><source src="background.mp4" type="video/mp4"></video></div>
+<div class="video-overlay"></div>
+
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <a href="#" class="logo"></a>
+    <button class="menu-btn" id="menuBtn"><span></span><span></span><span></span></button>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#">Tools</a></li>
+      <li><a href="#">Scanner</a></li>
+      <li><a href="#" class="active">SQLMap</a></li>
+      <li><a href="#">Reports</a></li>
+      <li><span class="status-badge"><span class="status-dot"></span> SQLMap Builder</span></li>
+    </ul>
+  </div>
+</nav>
+
+<div class="app-container">
+  <aside class="sidebar">
+    <div class="logo-area">
+      <div class="logo-icon-large"><img src="solo_logo.jpeg" alt="CyberFriend" onerror="this.style.display='none';"></div>
+      <img src="company_text.jpeg" alt="CyberFriend" class="logo-title-img" onerror="this.style.display='none';">
+      <div class="logo-badge">SQLMAP BUILDER</div>
+    </div>
+    <div class="sidebar-nav">
+      <div class="nav-section-title"><i class="fas fa-info-circle"></i> INFO</div>
+      <div style="padding: 0 1rem;">
+        <p style="font-size: 10px; color: var(--gray-600); line-height: 1.4;">SQLMap is an automatic SQL injection tool. Generate commands with Burp request support.</p>
+      </div>
+    </div>
+    <div class="sidebar-footer"><i class="fas fa-shield-alt"></i> UI only · no execution</div>
+  </aside>
+
+  <main class="main-content">
+    <div class="scroll-content">
+      <div class="builder-container">
+        <div class="hero-card">
+          <div style="display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap;">
+            <div style="width: 38px; height: 38px; background: var(--grad); border-radius: 12px; display: flex; align-items: center; justify-content: center;"><i class="fas fa-database" style="font-size: 18px; color: white;"></i></div>
+            <div><h4 style="margin:0; font-size: 1.1rem;">SQLMap Command Builder</h4><p style="color: var(--gray-600); margin-top: 2px; font-size: 11px;">Generate sqlmap commands with Burp request file support</p></div>
+          </div>
+        </div>
+
+        <div class="warning-card"><i class="fas fa-exclamation-triangle"></i><span>FOR AUTHORIZED TESTING ONLY — Use only on systems you own or have explicit permission to test.</span></div>
+
+        <div class="two-columns">
+          <!-- Left Panel -->
+          <div class="panel">
+            <div class="field">
+              <label><i class="fas fa-globe"></i> Target URL</label>
+              <input id="s-target" placeholder="http://example.com/vuln.php?id=1">
+              <div class="hint-text">Optional if using Burp request</div>
+            </div>
+
+            <div class="field">
+              <label><i class="fas fa-upload"></i> POST Data</label>
+              <input id="s-data" placeholder="id=1&action=view">
+            </div>
+
+            <div class="input-row">
+              <div class="field"><label>Risk (1-3)</label><input id="s-risk" placeholder="risk"></div>
+              <div class="field"><label>Level (1-5)</label><input id="s-level" placeholder="level"></div>
+            </div>
+
+            <div class="field">
+              <label><i class="fas fa-bolt"></i> Shortcut Flags</label>
+              <select id="s-others">
+                <option value="">-- Select shortcut --</option>
+                <option value="--dbs">--dbs (List databases)</option>
+                <option value="--tables">--tables (List tables)</option>
+                <option value="--dump">--dump (Dump data)</option>
+                <option value="--os-shell">--os-shell (OS shell)</option>
+                <option value="--batch">--batch (No prompts)</option>
+                <option value="--threads=10">--threads=10</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label><i class="fas fa-cogs"></i> Additional Options</label>
+              <input id="s-options" placeholder="--batch --random-agent">
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="field">
+              <label><i class="fas fa-file-code"></i> Burp Request (Raw)</label>
+              <textarea id="burpRaw" rows="6" placeholder="Paste raw HTTP request from Burp Suite..."></textarea>
+            </div>
+
+            <div class="input-row">
+              <button id="parseBurp" class="btn btn-secondary"><i class="fas fa-code-branch"></i> Parse</button>
+              <button id="downloadReq" class="btn btn-secondary"><i class="fas fa-download"></i> Download .txt</button>
+            </div>
+          </div>
+
+          <!-- Right Panel -->
+          <div class="panel">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <strong><i class="fas fa-terminal"></i> Generated Command</strong>
+              <span class="badge" id="commandMode">URL Mode</span>
+            </div>
+
+            <div id="cmdPreview" class="cmd-preview">Enter target URL or paste Burp request to generate sqlmap command.</div>
+
+            <div class="actions">
+              <button id="copyBtn" class="btn btn-primary"><i class="fas fa-copy"></i> Copy</button>
+              <button id="resetBtn" class="btn btn-secondary"><i class="fas fa-undo-alt"></i> Reset</button>
+              <button id="downloadBtn" class="btn btn-secondary"><i class="fas fa-download"></i> Save</button>
+            </div>
+
+            <div class="divider"></div>
+            
+            <div class="hint-text"><i class="fas fa-info-circle"></i> Example Burp Request:</div>
+            <div class="code-block">
+              GET /page.php?id=1 HTTP/1.1<br>
+              Host: target.com<br>
+              User-Agent: Mozilla/5.0<br>
+              Cookie: session=abc123
+            </div>
+          </div>
+        </div>
+
+        <div class="footer-note"><span><i class="fas fa-shield-alt"></i> CyberFriend — SQLMap Command Builder (UI-only)</span><span><i class="fas fa-clock"></i> <span id="liveTime"></span></span></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+function toast(msg) {
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.innerHTML = `<i class="fas fa-check-circle"></i> ${msg}`;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 1800);
+}
+
+function safeCopy(text, msg) {
+  navigator.clipboard?.writeText(text).then(() => toast(msg || 'Copied!')).catch(() => alert('Copy failed'));
+}
+
+// DOM Elements
+const s_target = document.getElementById('s-target');
+const s_data = document.getElementById('s-data');
+const s_options = document.getElementById('s-options');
+const s_risk = document.getElementById('s-risk');
+const s_level = document.getElementById('s-level');
+const s_others = document.getElementById('s-others');
+const burpRaw = document.getElementById('burpRaw');
+const parseBurp = document.getElementById('parseBurp');
+const downloadReq = document.getElementById('downloadReq');
+const cmdPreview = document.getElementById('cmdPreview');
+const copyBtn = document.getElementById('copyBtn');
+const resetBtn = document.getElementById('resetBtn');
+const downloadBtn = document.getElementById('downloadBtn');
+const commandMode = document.getElementById('commandMode');
+
+function buildCommand() {
+  const raw = burpRaw.value.trim();
+  const target = s_target.value.trim();
+  const data = s_data.value.trim();
+  const opts = s_options.value.trim();
+  const risk = s_risk.value.trim();
+  const level = s_level.value.trim();
+  const shortcut = s_others.value;
+
+  if (raw) {
+    commandMode.textContent = 'Request File Mode (-r)';
+    commandMode.style.background = 'rgba(59, 130, 246, 0.1)';
+    commandMode.style.color = '#3b82f6';
+    let cmd = 'sqlmap -r request.txt';
+    if (risk) cmd += ` --risk=${risk}`;
+    if (level) cmd += ` --level=${level}`;
+    if (shortcut && shortcut !== '') cmd += ` ${shortcut}`;
+    if (opts) cmd += ` ${opts}`;
+    if (data) cmd += ` --data "${data.replace(/"/g, '\\"')}"`;
+    return cmd;
+  }
+
+  commandMode.textContent = 'URL Mode';
+  commandMode.style.background = 'rgba(16, 185, 129, 0.1)';
+  commandMode.style.color = 'var(--green-dark)';
+
+  if (!target) return '⚠️ Enter a target URL or paste a Burp request';
+  
+  let cmd = `sqlmap -u "${target}"`;
+  if (data) cmd += ` --data "${data.replace(/"/g, '\\"')}"`;
+  if (risk) cmd += ` --risk=${risk}`;
+  if (level) cmd += ` --level=${level}`;
+  if (shortcut && shortcut !== '') cmd += ` ${shortcut}`;
+  if (opts) cmd += ` ${opts}`;
+  return cmd;
+}
+
+function updatePreview() {
+  cmdPreview.textContent = buildCommand();
+}
+
+function parseRawRequest(raw) {
+  const lines = raw.replace(/\r/g, '').split('\n');
+  if (!lines.length) return null;
+  const first = lines[0].split(' ');
+  if (first.length < 2) return null;
+  const method = first[0];
+  const path = first[1];
+  let host = '';
+  const headers = {};
+  let i = 1;
+  for (; i < lines.length; i++) {
+    const line = lines[i];
+    if (line.trim() === '') { i++; break; }
+    const idx = line.indexOf(':');
+    if (idx > 0) {
+      const k = line.slice(0, idx).trim();
+      const v = line.slice(idx + 1).trim();
+      headers[k] = v;
+      if (k.toLowerCase() === 'host') host = v;
+    }
+  }
+  const body = lines.slice(i).join('\n');
+  return { method, path, host, headers, body };
+}
+
+parseBurp.addEventListener('click', () => {
+  const raw = burpRaw.value.trim();
+  if (!raw) { toast('⚠️ Paste a raw Burp request first'); return; }
+  const parsed = parseRawRequest(raw);
+  if (!parsed) { toast('❌ Could not parse request'); return; }
+  if (parsed.host) {
+    const proto = parsed.headers['X-Forwarded-Proto'] || 'http';
+    const url = `${proto}://${parsed.host}${parsed.path}`;
+    s_target.value = url;
+  }
+  if (parsed.body) s_data.value = parsed.body;
+  toast('✅ Request parsed successfully!');
+  updatePreview();
+});
+
+downloadReq.addEventListener('click', () => {
+  const raw = burpRaw.value.trim();
+  if (!raw) { toast('⚠️ Paste a Burp raw request first'); return; }
+  const blob = new Blob([raw], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'request.txt';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  toast('📁 request.txt downloaded');
+  updatePreview();
+});
+
+[s_target, s_data, s_options, s_risk, s_level, s_others, burpRaw].forEach(el => {
+  if (el) el.addEventListener('input', updatePreview);
+});
+
+copyBtn.addEventListener('click', async () => {
+  const cmd = cmdPreview.textContent;
+  if (cmd && !cmd.startsWith('⚠️')) safeCopy(cmd, 'Command copied!');
+  else toast('⚠️ No valid command');
+});
+
+resetBtn.addEventListener('click', () => {
+  s_target.value = '';
+  s_data.value = '';
+  s_options.value = '';
+  s_risk.value = '';
+  s_level.value = '';
+  if (s_others) s_others.selectedIndex = 0;
+  burpRaw.value = '';
+  updatePreview();
+  toast('🔄 Form reset');
+});
+
+downloadBtn.addEventListener('click', () => {
+  const cmd = cmdPreview.textContent;
+  if (!cmd || cmd.startsWith('⚠️')) { toast('⚠️ No valid command'); return; }
+  const blob = new Blob([cmd], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'sqlmap-command.txt';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  toast('📄 Command saved');
+});
+
+window.addEventListener('keydown', async (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
+    const active = document.activeElement;
+    if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.tagName === 'SELECT')) return;
+    e.preventDefault();
+    const cmd = cmdPreview.textContent;
+    if (cmd && !cmd.startsWith('⚠️')) safeCopy(cmd, 'Command copied!');
+  }
+});
+
+window.addEventListener('scroll', () => document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 20));
+const menuBtn = document.getElementById('menuBtn'), navLinksEl = document.getElementById('navLinks');
+if (menuBtn) menuBtn.addEventListener('click', () => navLinksEl.classList.toggle('open'));
+document.querySelectorAll('.nav-links a').forEach(link => link.addEventListener('click', () => navLinksEl.classList.remove('open')));
+
+function updateLiveTime() {
+  const el = document.getElementById('liveTime');
+  if (el) el.textContent = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+}
+updateLiveTime();
+setInterval(updateLiveTime, 1000);
+
+const video = document.getElementById('bgVideo');
+if (video) video.play().catch(() => document.body.addEventListener('click', () => video.play(), { once: true }));
+
+updatePreview();
+</script>
+</body>
+</html>

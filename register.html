@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="container">
+  <img src="logo.png" class="logo">
+  <h2>Register</h2>
+
+  <form id="registerForm">
+    <input type="text" id="signupName" placeholder="Name" required>
+    <input type="text" id="signupMobile" placeholder="Mobile" required>
+    <input type="email" id="signupEmail" placeholder="Email" required>
+    <input type="password" id="signupPassword" placeholder="Password" required>
+    <input type="password" id="signupConfirmPassword" placeholder="Confirm Password" required>
+    <button type="submit">Register</button>
+    <p>Already have an account? <a href="login.html">Login</a></p>
+  </form>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, setDoc, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { setCookie, redirectIfLoggedIn } from "./auth.js";
+
+redirectIfLoggedIn(); // If already logged in, redirect to index
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCgC4bUGN2XajhVvHHyYf-qxzgvy-nmyY8",
+  authDomain: "admin-6df50.firebaseapp.com",
+  projectId: "admin-6df50",
+  storageBucket: "admin-6df50.firebasestorage.app",
+  messagingSenderId: "273989159024",
+  appId: "1:273989159024:web:d584cc68ef633cab5b8cb5"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+document.getElementById("registerForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const name = document.getElementById("signupName").value;
+  const mobile = document.getElementById("signupMobile").value;
+  const email = document.getElementById("signupEmail").value;
+  const password = document.getElementById("signupPassword").value;
+  const confirmPassword = document.getElementById("signupConfirmPassword").value;
+
+  if (password !== confirmPassword) {
+    alert("Passwords do not match!");
+    return;
+  }
+
+  try {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+
+    // Save additional info in Firestore
+    await setDoc(doc(db, "users", user.uid), {
+      name, mobile, email, createdAt: serverTimestamp()
+    });
+
+    setCookie("user", user.uid, 1); // Save cookie for 1 day
+    window.location.href = "index.html";
+  } catch (err) {
+    alert("Registration failed: " + err.message);
+  }
+});
+</script>
+</body>
+</html>

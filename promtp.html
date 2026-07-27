@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>CyberFriend | POC Prompt Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', sans-serif; background: #ffffff; color: #1e293b; line-height: 1.5; overflow-x: hidden; font-size: 14px; }
+  .video-background { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; overflow: hidden; }
+  .video-background video { min-width: 100%; min-height: 100%; width: auto; height: auto; position: absolute; top: 50%; left: 50%; opacity: 0.35; transform: translate(-50%, -50%); object-fit: cover; }
+  .video-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: transparent; z-index: -1; }
+  :root { --white: #ffffff; --offwhite: #f9fafb; --gray-50: #f8fafc; --gray-100: #f1f5f9; --gray-200: #e2e8f0; --gray-300: #cbd5e1; --gray-600: #475569; --gray-700: #334155; --gray-800: #1e293b; --gray-900: #0f172a; --green: #10b981; --green-dark: #059669; --blue: #3b82f6; --blue-dark: #2563eb; --grad: linear-gradient(135deg, #10b981, #3b82f6); --grad-hover: linear-gradient(135deg, #059669, #2563eb); --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05); --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03); --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025); --border-light: 1px solid rgba(226, 232, 240, 0.5); --warning: #f59e0b; }
+  h1, h2, h3, h4, h5, h6 { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; letter-spacing: -0.02em; }
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: rgba(241, 245, 249, 0.5); }
+  ::-webkit-scrollbar-thumb { background: var(--green); border-radius: 10px; }
+  
+  .navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; padding: 0 5%; transition: all 0.3s ease; background: transparent; }
+  .navbar.scrolled { background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(12px); border-bottom: var(--border-light); box-shadow: var(--shadow-sm); }
+  .nav-container { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 60px; }
+  .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+  .nav-links { display: flex; list-style: none; gap: 1.8rem; align-items: center; }
+  .nav-links a { text-decoration: none; font-size: 0.85rem; font-weight: 500; color: var(--gray-700); transition: color 0.2s; }
+  .nav-links a:hover, .nav-links a.active { color: var(--green); }
+  .status-badge { background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.25); padding: 0.2rem 0.9rem; border-radius: 40px; font-size: 0.7rem; font-weight: 600; color: var(--green-dark); display: flex; align-items: center; gap: 6px; }
+  .status-dot { width: 7px; height: 7px; background: var(--green); border-radius: 50%; animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(1.2); } }
+  .menu-btn { display: none; background: none; border: none; cursor: pointer; padding: 8px; }
+  .menu-btn span { display: block; width: 22px; height: 2px; background: var(--gray-800); margin: 5px 0; border-radius: 2px; }
+  
+  .app-container { display: flex; padding-top: 60px; min-height: 100vh; }
+  
+  /* Sidebar */
+  .sidebar { width: 240px; background: transparent; backdrop-filter: blur(1px); border-right: var(--border-light); height: calc(100vh - 60px); position: sticky; top: 60px; overflow-y: auto; flex-shrink: 0; }
+  .logo-area { padding: 1.2rem 1rem 1rem; border-bottom: var(--border-light); text-align: center; }
+  .logo-icon-large { width: 50px; height: 50px; margin: 0 auto 0.6rem; }
+  .logo-icon-large img { width: 100%; height: 100%; object-fit: contain; }
+  .logo-title-img { height: 24px; width: auto; object-fit: contain; margin-bottom: 0.3rem; }
+  .logo-badge { font-size: 0.55rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--green); background: rgba(16, 185, 129, 0.1); padding: 0.12rem 0.6rem; border-radius: 20px; display: inline-block; }
+  .sidebar-nav { padding: 0.8rem 0; }
+  .nav-section-title { padding: 0.4rem 1rem; font-size: 0.6rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--gray-600); display: flex; align-items: center; gap: 6px; }
+  .sidebar-footer { padding: 0.8rem 1rem; border-top: var(--border-light); color: var(--gray-600); font-size: 0.6rem; text-align: center; }
+  
+  .main-content { flex: 1; overflow-y: auto; height: calc(100vh - 60px); }
+  .scroll-content { padding: 1.2rem; }
+  
+  /* POC Generator Styles */
+  .poc-container { max-width: 1100px; margin: 0 auto; }
+  .hero-card { background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(8px); border-radius: 16px; padding: 1rem; margin-bottom: 1rem; border: var(--border-light); text-align: center; }
+  .warning-card { background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(239, 68, 68, 0.05)); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 10px; padding: 0.6rem 1rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 10px; }
+  .warning-card i { color: #f59e0b; font-size: 14px; }
+  .warning-card span { font-size: 11px; color: #b45309; }
+  
+  .two-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media (max-width: 900px) { .two-columns { grid-template-columns: 1fr; } .sidebar { display: none; } .menu-btn { display: block; } .nav-links { display: none; position: fixed; top: 60px; left: 0; right: 0; background: white; flex-direction: column; padding: 1rem; gap: 0.8rem; box-shadow: var(--shadow-lg); z-index: 999; } .nav-links.open { display: flex; } }
+  
+  .panel { background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(8px); border-radius: 16px; padding: 1rem; border: var(--border-light); }
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-size: 10px; font-weight: 600; color: var(--gray-600); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.3px; }
+  .field input, .field textarea { width: 100%; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--gray-200); background: white; font-family: 'Inter', sans-serif; font-size: 12px; transition: all 0.2s; }
+  .field input:focus, .field textarea:focus { outline: none; border-color: var(--green); box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1); }
+  
+  .step-item { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
+  .step-item input { flex: 1; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--gray-200); background: white; font-size: 12px; }
+  .step-item input:focus { outline: none; border-color: var(--green); }
+  .step-item button { background: none; border: none; color: var(--danger); cursor: pointer; padding: 6px 8px; border-radius: 6px; transition: all 0.2s; }
+  .step-item button:hover { background: rgba(239, 68, 68, 0.1); }
+  
+  .preview-box { background: var(--gray-50); border-radius: 12px; padding: 14px; font-family: 'Courier New', monospace; font-size: 11px; color: var(--gray-800); white-space: pre-wrap; word-break: break-word; border: 1px solid var(--gray-200); min-height: 400px; max-height: 500px; overflow-y: auto; line-height: 1.5; }
+  
+  .action-buttons { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+  .btn { padding: 6px 14px; border-radius: 40px; font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; font-family: 'Inter', sans-serif; display: inline-flex; align-items: center; gap: 6px; }
+  .btn-primary { background: var(--grad); color: white; }
+  .btn-primary:hover { transform: scale(0.97); background: var(--grad-hover); }
+  .btn-secondary { background: white; border: 1px solid var(--gray-200); color: var(--gray-700); }
+  .btn-secondary:hover { border-color: var(--green); color: var(--green); background: rgba(16, 185, 129, 0.05); }
+  
+  .btn-icon { background: none; border: none; color: var(--gray-600); cursor: pointer; padding: 4px 8px; border-radius: 6px; }
+  .btn-icon:hover { background: var(--gray-100); color: var(--green); }
+  
+  .footer-note { margin-top: 1rem; padding-top: 0.8rem; border-top: var(--border-light); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; color: var(--gray-600); font-size: 0.65rem; }
+  .toast { position: fixed; bottom: 20px; right: 20px; background: var(--green-dark); color: white; padding: 6px 14px; border-radius: 40px; font-size: 11px; font-weight: 500; z-index: 9999; animation: slideIn 0.3s ease; }
+  @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+  
+  .template-buttons { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+  .template-btn { background: var(--gray-100); border: 1px solid var(--gray-200); border-radius: 20px; padding: 4px 10px; font-size: 10px; cursor: pointer; transition: all 0.2s; }
+  .template-btn:hover { background: var(--green); color: white; border-color: var(--green); }
+  
+  .char-count { font-size: 9px; color: var(--gray-500); text-align: right; margin-top: 4px; }
+</style>
+</head>
+<body>
+
+<div class="video-background"><video autoplay muted loop playsinline id="bgVideo"><source src="background.mp4" type="video/mp4"></video></div>
+<div class="video-overlay"></div>
+
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <a href="#" class="logo"></a>
+    <button class="menu-btn" id="menuBtn"><span></span><span></span><span></span></button>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#">Tools</a></li>
+      <li><a href="#">Scanner</a></li>
+      <li><a href="#" class="active">POC</a></li>
+      <li><a href="#">Reports</a></li>
+      <li><span class="status-badge"><span class="status-dot"></span> POC Generator</span></li>
+    </ul>
+  </div>
+</nav>
+
+<div class="app-container">
+  <aside class="sidebar">
+    <div class="logo-area">
+      <div class="logo-icon-large"><img src="solo_logo.jpeg" alt="CyberFriend" onerror="this.style.display='none';"></div>
+      <img src="company_text.jpeg" alt="CyberFriend" class="logo-title-img" onerror="this.style.display='none';">
+      <div class="logo-badge">POC GEN</div>
+    </div>
+    <div class="sidebar-nav">
+      <div class="nav-section-title"><i class="fas fa-info-circle"></i> INFO</div>
+      <div style="padding: 0 1rem;">
+        <p style="font-size: 10px; color: var(--gray-600); line-height: 1.4;">Generate professional POC prompts for security reports. Includes description, impact, and recommendations.</p>
+      </div>
+    </div>
+    <div class="sidebar-footer"><i class="fas fa-shield-alt"></i> UI only · no execution</div>
+  </aside>
+
+  <main class="main-content">
+    <div class="scroll-content">
+      <div class="poc-container">
+        <div class="hero-card">
+          <div style="display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap;">
+            <div style="width: 38px; height: 38px; background: var(--grad); border-radius: 12px; display: flex; align-items: center; justify-content: center;"><i class="fas fa-file-alt" style="font-size: 18px; color: white;"></i></div>
+            <div><h4 style="margin:0; font-size: 1.1rem;">POC Prompt Generator</h4><p style="color: var(--gray-600); margin-top: 2px; font-size: 11px;">Generate professional Proof of Concept prompts for security reports</p></div>
+          </div>
+        </div>
+
+        <div class="warning-card"><i class="fas fa-info-circle"></i><span>Use this tool to generate structured POC prompts for security assessment reports.</span></div>
+
+        <div class="two-columns">
+          <!-- Left Panel - Inputs -->
+          <div class="panel">
+            <div class="field">
+              <label><i class="fas fa-tag"></i> Finding Name</label>
+              <input id="finding" placeholder="e.g., SQL Injection in Login Parameter">
+            </div>
+
+            <div class="field">
+              <label><i class="fas fa-list-ol"></i> Steps of POC</label>
+              <div id="stepsContainer"></div>
+              <div class="action-buttons" style="margin-top: 0;">
+                <button id="addStep" class="btn btn-secondary"><i class="fas fa-plus"></i> Add Step</button>
+                <button id="clearSteps" class="btn btn-secondary"><i class="fas fa-trash-alt"></i> Clear Steps</button>
+              </div>
+            </div>
+
+            <div class="field">
+              <label><i class="fas fa-description"></i> Description</label>
+              <textarea id="description" rows="3" placeholder="Explain what the vulnerability is and why it occurs..."></textarea>
+            </div>
+
+            <div class="field">
+              <label><i class="fas fa-exclamation-triangle"></i> Impact</label>
+              <textarea id="impact" rows="2" placeholder="State why it matters and the risk if not fixed..."></textarea>
+            </div>
+
+            <div class="field">
+              <label><i class="fas fa-tools"></i> Recommendation</label>
+              <textarea id="recommendation" rows="2" placeholder="Provide fix/mitigation steps..."></textarea>
+            </div>
+
+            <div class="template-buttons">
+              <span class="template-btn" data-template="sql">SQL Injection</span>
+              <span class="template-btn" data-template="xss">XSS</span>
+              <span class="template-btn" data-template="idor">IDOR</span>
+              <span class="template-btn" data-template="csrf">CSRF</span>
+              <span class="template-btn" data-template="ssrf">SSRF</span>
+              <span class="template-btn" data-template="rce">RCE</span>
+            </div>
+
+            <div class="action-buttons">
+              <button id="generateBtn" class="btn btn-primary"><i class="fas fa-magic"></i> Generate Prompt</button>
+              <button id="copyBtn" class="btn btn-secondary"><i class="fas fa-copy"></i> Copy</button>
+              <button id="downloadBtn" class="btn btn-secondary"><i class="fas fa-download"></i> Download</button>
+              <button id="resetBtn" class="btn btn-secondary"><i class="fas fa-undo-alt"></i> Reset</button>
+            </div>
+          </div>
+
+          <!-- Right Panel - Preview -->
+          <div class="panel">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <label style="margin: 0;"><i class="fas fa-eye"></i> Generated Prompt</label>
+              <span class="char-count" id="charCount">0 characters</span>
+            </div>
+            <div id="preview" class="preview-box">Your POC prompt will appear here after clicking Generate...</div>
+          </div>
+        </div>
+
+        <div class="footer-note"><span><i class="fas fa-shield-alt"></i> CyberFriend — POC Prompt Generator</span><span><i class="fas fa-clock"></i> <span id="liveTime"></span></span></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+function toast(msg) {
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.innerHTML = `<i class="fas fa-check-circle"></i> ${msg}`;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 1800);
+}
+
+function copyToClipboard(text, msg) {
+  navigator.clipboard?.writeText(text).then(() => toast(msg || 'Copied!')).catch(() => alert('Copy failed'));
+}
+
+// Step Management
+const stepsContainer = document.getElementById('stepsContainer');
+let stepCounter = 0;
+
+function addStep(value = '') {
+  const div = document.createElement('div');
+  div.className = 'step-item';
+  div.setAttribute('data-step-id', stepCounter++);
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.placeholder = 'Enter step description...';
+  input.value = value;
+  const delBtn = document.createElement('button');
+  delBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
+  delBtn.title = 'Remove step';
+  delBtn.onclick = () => div.remove();
+  div.appendChild(input);
+  div.appendChild(delBtn);
+  stepsContainer.appendChild(div);
+}
+
+function clearAllSteps() {
+  stepsContainer.innerHTML = '';
+  addStep(); addStep(); addStep();
+}
+
+// Initial steps
+addStep(); addStep(); addStep();
+document.getElementById('addStep').addEventListener('click', () => addStep());
+document.getElementById('clearSteps').addEventListener('click', clearAllSteps);
+
+// Convert step text to imperative form
+function convertStepText(text) {
+  return text.replace(/\bI opened\b/gi, "Open")
+             .replace(/\bI navigated\b/gi, "Navigate to")
+             .replace(/\bI entered\b/gi, "Enter")
+             .replace(/\bI clicked\b/gi, "Click")
+             .replace(/\bI selected\b/gi, "Select")
+             .replace(/\bI uploaded\b/gi, "Upload")
+             .replace(/\bI downloaded\b/gi, "Download")
+             .replace(/\bI executed\b/gi, "Execute")
+             .replace(/\bI checked\b/gi, "Check")
+             .replace(/\bI submitted\b/gi, "Submit")
+             .replace(/\bI logged in\b/gi, "Log in")
+             .replace(/\bI logged out\b/gi, "Log out")
+             .replace(/\bI created\b/gi, "Create")
+             .replace(/\bI sent\b/gi, "Send")
+             .replace(/\bI observed\b/gi, "Observe")
+             .replace(/\bI verified\b/gi, "Verify")
+             .trim();
+}
+
+function formatSteps() {
+  const stepInputs = [...stepsContainer.querySelectorAll('input')];
+  const steps = stepInputs.map(input => input.value.trim()).filter(Boolean);
+  if (steps.length === 0) return 'No steps provided.';
+  return steps.map((s, i) => `Step ${i + 1}: ${convertStepText(s)}`).join("\n");
+}
+
+// Templates
+const templates = {
+  sql: {
+    finding: "SQL Injection in [Parameter Name]",
+    description: "SQL Injection occurs when user-supplied input is improperly sanitized before being used in SQL queries. Attackers can inject malicious SQL code to bypass authentication, extract sensitive data, or modify database contents.",
+    impact: "Critical - Unauthorized data access, data manipulation, authentication bypass, potential database compromise, and data loss.",
+    recommendation: "1. Use parameterized queries/prepared statements\n2. Implement input validation and sanitization\n3. Use stored procedures\n4. Apply least privilege principle for database accounts\n5. Use WAF for additional protection"
+  },
+  xss: {
+    finding: "Cross-Site Scripting (XSS) in [Parameter Name]",
+    description: "Cross-Site Scripting occurs when untrusted data is included in web page output without proper validation or escaping. Attackers can execute malicious scripts in victims' browsers.",
+    impact: "Medium to High - Session hijacking, credential theft, defacement, redirection to malicious sites, and CSRF attacks.",
+    recommendation: "1. Implement output encoding/escaping\n2. Use Content Security Policy (CSP)\n3. Validate and sanitize all user inputs\n4. Use XSS protection libraries\n5. Set HttpOnly and Secure flags on cookies"
+  },
+  idor: {
+    finding: "Insecure Direct Object Reference (IDOR) in [Endpoint]",
+    description: "IDOR occurs when an application exposes internal object references (like database keys) without proper access control checks, allowing unauthorized users to access other users' data.",
+    impact: "High - Unauthorized access to sensitive data, data leakage, privacy violation, and potential privilege escalation.",
+    recommendation: "1. Implement proper access control checks\n2. Use indirect reference maps\n3. Verify user authorization for every request\n4. Use session-based access control\n5. Regular security testing"
+  },
+  csrf: {
+    finding: "Cross-Site Request Forgery (CSRF) in [Function]",
+    description: "CSRF allows attackers to execute unwanted actions on a web application where a user is authenticated, by tricking the user into submitting a malicious request.",
+    impact: "Medium - Unauthorized actions (password change, funds transfer, profile modification) performed on behalf of authenticated users.",
+    recommendation: "1. Implement CSRF tokens\n2. Use SameSite cookie attribute\n3. Validate referer/origin headers\n4. Require re-authentication for sensitive actions\n5. Use custom request headers"
+  },
+  ssrf: {
+    finding: "Server-Side Request Forgery (SSRF) in [Parameter]",
+    description: "SSRF occurs when an attacker can make the server send requests to unintended locations, potentially accessing internal services or performing port scans.",
+    impact: "High - Internal network scanning, access to metadata services (AWS, GCP), local file reading, and internal service exploitation.",
+    recommendation: "1. Implement allowlist of allowed URLs/IPs\n2. Validate and sanitize URL inputs\n3. Disable unnecessary URL schemas\n4. Use URL parsing libraries\n5. Implement network segmentation"
+  },
+  rce: {
+    finding: "Remote Code Execution (RCE) in [Parameter/Function]",
+    description: "RCE occurs when an attacker can execute arbitrary code on the server through input injection, often via insecure deserialization, command injection, or file upload vulnerabilities.",
+    impact: "Critical - Full server compromise, data theft, malware deployment, lateral movement, and complete system takeover.",
+    recommendation: "1. Avoid dangerous functions (eval, exec, system)\n2. Implement strict input validation\n3. Use secure deserialization\n4. Run applications with least privilege\n5. Regular security patching"
+  }
+};
+
+// Apply template
+document.querySelectorAll('.template-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const template = templates[btn.dataset.template];
+    if (template) {
+      document.getElementById('finding').value = template.finding;
+      document.getElementById('description').value = template.description;
+      document.getElementById('impact').value = template.impact;
+      document.getElementById('recommendation').value = template.recommendation;
+      toast(`${btn.textContent} template loaded`);
+    }
+  });
+});
+
+// Generate Prompt
+function generatePrompt() {
+  const finding = document.getElementById('finding').value.trim() || 'Not specified';
+  const steps = formatSteps();
+  const description = document.getElementById('description').value.trim() || 'Not specified';
+  const impact = document.getElementById('impact').value.trim() || 'Not specified';
+  const recommendation = document.getElementById('recommendation').value.trim() || 'Not specified';
+  
+  const output = `=== POC PROMPT ===
+
+📌 FINDING NAME:
+${finding}
+
+📋 STEPS OF POC:
+${steps}
+
+📝 DESCRIPTION:
+${description}
+
+⚠️ IMPACT:
+${impact}
+
+🔧 RECOMMENDATION:
+${recommendation}
+
+---
+Generated by CyberFriend POC Generator`;
+  
+  document.getElementById('preview').textContent = output;
+  document.getElementById('charCount').textContent = output.length + ' characters';
+}
+
+// Reset all fields
+function resetAll() {
+  document.getElementById('finding').value = '';
+  document.getElementById('description').value = '';
+  document.getElementById('impact').value = '';
+  document.getElementById('recommendation').value = '';
+  clearAllSteps();
+  document.getElementById('preview').textContent = 'Your POC prompt will appear here after clicking Generate...';
+  document.getElementById('charCount').textContent = '0 characters';
+  toast('All fields reset');
+}
+
+// Event listeners
+document.getElementById('generateBtn').addEventListener('click', generatePrompt);
+document.getElementById('copyBtn').addEventListener('click', () => {
+  const text = document.getElementById('preview').textContent;
+  if (text && !text.includes('will appear here')) {
+    copyToClipboard(text, 'POC prompt copied!');
+  } else {
+    toast('Generate a prompt first');
+  }
+});
+document.getElementById('downloadBtn').addEventListener('click', () => {
+  const text = document.getElementById('preview').textContent;
+  if (text && !text.includes('will appear here')) {
+    const blob = new Blob([text], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `POC_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    toast('Prompt downloaded');
+  } else {
+    toast('Generate a prompt first');
+  }
+});
+document.getElementById('resetBtn').addEventListener('click', resetAll);
+
+// Auto-generate on input changes
+const inputs = ['finding', 'description', 'impact', 'recommendation'];
+inputs.forEach(id => {
+  document.getElementById(id).addEventListener('input', generatePrompt);
+});
+
+// Navbar scroll effect
+window.addEventListener('scroll', () => {
+  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 20);
+});
+
+// Mobile menu toggle
+const menuBtn = document.getElementById('menuBtn');
+const navLinksEl = document.getElementById('navLinks');
+if (menuBtn) menuBtn.addEventListener('click', () => navLinksEl.classList.toggle('open'));
+document.querySelectorAll('.nav-links a').forEach(link => link.addEventListener('click', () => navLinksEl.classList.remove('open')));
+
+// Live time
+function updateLiveTime() {
+  const el = document.getElementById('liveTime');
+  if (el) el.textContent = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+}
+updateLiveTime();
+setInterval(updateLiveTime, 1000);
+
+// Video autoplay
+const video = document.getElementById('bgVideo');
+if (video) video.play().catch(() => document.body.addEventListener('click', () => video.play(), { once: true }));
+
+// Initial generate
+setTimeout(generatePrompt, 100);
+</script>
+</body>
+</html>
